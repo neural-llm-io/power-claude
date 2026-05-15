@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="Neural-LLM Claude Rotator">
+  <!--
+    [claude:opus-4.7-1m] Neural-LLM brand mark for the Claude Rotator extension.
+    Concept: a neural-node lattice forming a rotation/cycle gesture.
+    - Inner ring of three nodes = "rotation of accounts"
+    - Outer arcs = neural connections (LLM domain)
+    - Open negative space at top = the "next available account" slot the rotator fills
+    Designed flat, monochrome-friendly, readable from 16px (status bar) to 1024px.
+    Token-driven palette: deep teal primary + accent for active node.
+  -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0e7c7b"/>
+      <stop offset="100%" stop-color="#062a47"/>
+    </linearGradient>
+    <radialGradient id="active" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#7dd3fc"/>
+      <stop offset="100%" stop-color="#0ea5e9"/>
+    </radialGradient>
+  </defs>
+
+  <!-- background tile (rounded square — Marketplace-friendly) -->
+  <rect x="0" y="0" width="128" height="128" rx="22" ry="22" fill="url(#bg)"/>
+
+  <!-- outer connection arcs (neural mesh) -->
+  <g fill="none" stroke="#7dd3fc" stroke-width="2.2" stroke-linecap="round" opacity="0.55">
+    <path d="M 32 44 Q 64 24 96 44"/>
+    <path d="M 96 44 Q 110 80 78 100"/>
+    <path d="M 78 100 Q 50 110 32 84"/>
+    <path d="M 32 84 Q 18 60 32 44"/>
+  </g>
+
+  <!-- mid connection arcs (the rotation cycle) -->
+  <g fill="none" stroke="#22d3ee" stroke-width="3" stroke-linecap="round">
+    <path d="M 44 56 Q 64 42 84 56"/>
+    <path d="M 84 56 Q 92 78 70 88"/>
+    <path d="M 70 88 Q 48 92 44 56"/>
+  </g>
+
+  <!-- three rotation nodes -->
+  <circle cx="44" cy="56" r="7" fill="#67e8f9"/>
+  <circle cx="84" cy="56" r="7" fill="#67e8f9"/>
+  <circle cx="70" cy="88" r="7" fill="#67e8f9"/>
+
+  <!-- center (active) node — glowing accent -->
+  <circle cx="64" cy="64" r="11" fill="url(#active)"/>
+  <circle cx="64" cy="64" r="5" fill="#f0f9ff"/>
+
+  <!-- spark / next-rotation indicator (top vertex) -->
+  <g fill="#facc15">
+    <circle cx="64" cy="32" r="3.5"/>
+    <path d="M 64 26 L 67 32 L 64 38 L 61 32 Z" opacity="0.7"/>
+  </g>
+</svg>
