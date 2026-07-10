@@ -1,0 +1,417 @@
+POWER CLAUDE — END USER LICENSE AGREEMENT
+=========================================
+
+Copyright (c) 2025-2026 Neural-LLM. All rights reserved.
+
+Last updated: May 11, 2026
+
+Publisher / Licensor:
+  Neural-LLM (a sole proprietorship operating under that name) ("Neural-LLM")
+  1192 E Draper Pkwy # 310, Draper, UT 84020
+  neural-llm.com
+  Contact: support@neural-llm.com
+
+This End User License Agreement ("Agreement") is a legal contract between
+you ("Licensee", "you", "your") and Neural-LLM ("Licensor", "we",
+"us", "our") governing your installation and use of the Power Claude
+extension for Visual Studio Code, Cursor, and compatible editors (the
+"Software"). By installing, copying, or otherwise using the Software, you
+agree to be bound by the terms of this Agreement. If you do not agree,
+do not install or use the Software.
+
+The Software is licensed, not sold. Neural-LLM retains all right, title,
+and interest in and to the Software, including all intellectual property
+rights therein, including without limitation all copyrights, patents,
+trade secrets, trademarks, and other proprietary rights. "Power Claude"
+and the Power Claude logo are trademarks of Neural-LLM. You
+acquire no ownership interest by installing or using the Software.
+
+----------------------------------------------------------------------
+1. SUBSCRIPTION & LICENSE GRANT
+----------------------------------------------------------------------
+
+1.1 Free Tier
+
+Subject to your compliance with this Agreement, Neural-LLM grants you a
+personal, non-exclusive, non-transferable, revocable, limited license to
+install and use the free-tier features of the Software on machines you
+own or control, at no charge. Free-tier features are described at
+neural-llm.com/power-claude and may change at any time with reasonable
+notice posted on that page.
+
+1.2 Pro Tier
+
+Subject to your timely payment of all applicable subscription fees and
+your compliance with this Agreement, Neural-LLM grants you a personal,
+non-exclusive, non-transferable, revocable license to install and use
+one (1) instance of the Pro-tier Software per active paid seat for your
+internal business use during the active subscription period.
+
+Subscriptions, billing terms, plan tiers, and seat counts are described
+on neural-llm.com and on your subscription confirmation receipt. Your
+subscription is associated with one or more license keys ("License Key")
+issued to you. License Keys are personal to you, non-transferable, and
+may not be shared.
+
+1.3 License Key Validation
+
+The Software validates your License Key and subscription status by
+communicating with Neural-LLM's license server at api.neural-llm.com.
+The Software may stop providing Pro-tier features, in whole or in part,
+if your License Key is revoked, your subscription lapses, is canceled, is
+refunded, or is flagged for fraud or Terms of Service violation. Neural-
+LLM reserves the right to revoke any License Key immediately and without
+prior notice upon a material breach of this Agreement.
+
+1.4 Free Trial
+
+A free trial period, if offered, is governed by the same terms as a paid
+Pro subscription except that no fees are due during the trial. The
+Software may enforce trial expiration by disabling Pro-tier features.
+Trial periods are non-renewable and limited to one per person or
+organization.
+
+----------------------------------------------------------------------
+2. PERMITTED USE
+----------------------------------------------------------------------
+
+You MAY:
+  (a) Install and use the Software on machines you own or control, up
+      to the seat count of your active subscription.
+  (b) Examine any source code that Neural-LLM publishes for the Software,
+      solely for the purpose of evaluating its behavior, security, and
+      compatibility with your environment.
+  (c) Submit bug reports, feature requests, and suggestions to Neural-LLM
+      via the issue tracker. By doing so, you grant Neural-LLM a
+      perpetual, worldwide, royalty-free license to use those submissions
+      to improve the Software.
+
+You MAY NOT (without Neural-LLM's prior written consent):
+  (a) Distribute, sublicense, sell, lease, rent, or otherwise transfer
+      the Software, the compiled `.vsix`, any License Key, or any modified
+      version thereof to any third party.
+  (b) Remove, modify, obfuscate, or circumvent any license-validation,
+      copy-protection, or rate-limiting mechanism contained in the
+      Software.
+  (c) Use the Software, or any portion of its source code, to build a
+      competing product or service, or to create any derivative work for
+      distribution outside your organization.
+  (d) Reverse engineer, decompile, disassemble, or otherwise attempt to
+      derive the source code or underlying algorithms of the Software,
+      except to the extent that applicable law expressly and irrevocably
+      permits such activity despite this contractual restriction, and only
+      to the minimum extent required by that law.
+  (e) Use the Software to violate Anthropic's Terms of Service or the
+      terms of any third-party API (Claude, OpenAI, etc.) you access
+      through or in conjunction with the Software.
+  (f) Use the Software for any unlawful purpose or in any manner that
+      could damage, disable, overburden, or impair Neural-LLM's services
+      or the services of any third party.
+  (g) Share, publish, or otherwise disclose your License Key to any
+      person or system not authorized under your subscription.
+
+----------------------------------------------------------------------
+3. DATA HANDLING & LOCAL-PROCESSING GUARANTEE
+----------------------------------------------------------------------
+
+3.1 Files Read Locally
+
+The Software reads files on your local machine to compute account-
+rotation state, session history, and analytics. The specific file paths
+accessed are:
+
+  - ~/.claude/projects/<workspace>/*.jsonl
+      (Claude Code session transcripts — read locally for analytics only)
+  - ~/.claude/state/rate-limits.json
+      (Active rate-limit state — read locally to drive rotation)
+  - ~/.claude/state/logs/rate-limit/handler.jsonl
+      (Rate-limit event history — read locally for activity feed)
+  - ~/.claude/profiles/*.json
+      (Account profile metadata — read locally to display account list)
+  - <workspace>/devtools/claude-auth/
+      (Rotation state cache written by the companion harness scripts)
+
+These files are processed entirely on your machine. No content from
+these files is transmitted to Neural-LLM or any third party, except as
+described in Section 3.2.
+
+3.2 License Validation Network Request
+
+Solely for the purpose of validating your License Key, the Software
+transmits:
+  - Your License Key
+  - A hashed, non-reversible machine identifier (hardware fingerprint)
+  - Software version, VS Code version, and platform / OS metadata
+
+to Neural-LLM's license server at api.neural-llm.com. The response
+contains only your subscription entitlement JSON (tier, seat count,
+expiration). No source code, no project files, no authentication tokens,
+no session transcript content, and no user-generated content are
+transmitted. The machine fingerprint cannot be used to identify you
+personally.
+
+3.3 Telemetry
+
+Telemetry is opt-in. By default, the Software transmits no usage data
+or analytics to Neural-LLM beyond the license validation request
+described in Section 3.2. If you explicitly enable telemetry in the
+Software's settings, you will be shown a clear disclosure of what is
+sent before telemetry begins.
+
+3.4 Privacy Policy
+
+Neural-LLM's privacy policy at https://neural-llm.com/privacy governs
+all data Neural-LLM collects. That policy is incorporated into this
+Agreement by reference. In the event of a conflict between this Section 3
+and the privacy policy, the privacy policy controls with respect to
+personal data.
+
+----------------------------------------------------------------------
+4. INTELLECTUAL PROPERTY
+----------------------------------------------------------------------
+
+Neural-LLM owns all right, title, and interest in and to the Software,
+including all source code, object code, documentation, graphics, user
+interfaces, and the Power Claude name and logo (collectively, "Neural-LLM
+IP"). This Agreement does not transfer any Neural-LLM IP to you. All
+rights not expressly granted in this Agreement are reserved by Neural-LLM.
+
+You agree not to challenge Neural-LLM's ownership of or the validity of
+any Neural-LLM IP, and not to register or attempt to register any
+trademark, trade name, or domain name confusingly similar to "Power Claude"
+or "Neural-LLM."
+
+----------------------------------------------------------------------
+5. THIRD-PARTY COMPONENTS
+----------------------------------------------------------------------
+
+The Software is a Visual Studio Code extension and depends on Visual
+Studio Code's extension host, Node.js runtime, and the `vscode` extension
+API. The Software bundles selected open-source libraries under their
+respective licenses; a complete list is available in the NOTICES file
+shipped in the `.vsix` package.
+
+Claude, Claude Code, and the Anthropic API are products of Anthropic PBC
+and are not affiliated with Neural-LLM. The Software is an independent
+third-party tool that interoperates with Claude Code via its public file
+outputs and CLI; it is not endorsed by, sponsored by, or affiliated with
+Anthropic.
+
+----------------------------------------------------------------------
+6. REFUND POLICY
+----------------------------------------------------------------------
+
+6.1 New Subscriptions
+
+If you are dissatisfied with the Software for any reason, you may
+request a full refund within fourteen (14) calendar days of your initial
+purchase by contacting support@neural-llm.com. This 14-day money-back
+guarantee applies once per customer account and is void if you have
+previously received a refund for any Neural-LLM product.
+
+6.2 Monthly Subscriptions
+
+After the initial 14-day period, monthly subscriptions are billed in
+advance and are non-refundable for the current billing month, except
+where required by applicable law. You may cancel at any time; your
+Pro-tier access continues until the end of the current paid period.
+
+6.3 Annual Subscriptions
+
+Annual subscriptions canceled after the 14-day period may receive a
+prorated refund for the remaining full calendar months unused, at
+Neural-LLM's sole discretion, unless required by applicable law.
+
+6.4 Statutory Rights
+
+Nothing in this Section limits any refund or cancellation rights you
+may have under applicable consumer protection law in your jurisdiction.
+
+----------------------------------------------------------------------
+7. NO WARRANTY
+----------------------------------------------------------------------
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT.
+
+Neural-LLM does not warrant that the Software will be uninterrupted,
+error-free, or that it will integrate with every version of Visual Studio
+Code, Cursor, Claude Code, or any third-party tool. Neural-LLM does not
+warrant that Pro-tier features will be continuously available or that the
+license server will maintain 100% uptime.
+
+----------------------------------------------------------------------
+8. LIMITATION OF LIABILITY
+----------------------------------------------------------------------
+
+IN NO EVENT SHALL NEURAL-LLM BE LIABLE FOR ANY INDIRECT, INCIDENTAL,
+SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO
+LOSS OF PROFITS, DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES, ARISING
+OUT OF OR IN CONNECTION WITH THIS AGREEMENT OR YOUR USE OF OR INABILITY TO
+USE THE SOFTWARE, WHETHER BASED IN CONTRACT, TORT (INCLUDING NEGLIGENCE),
+STRICT LIABILITY, OR OTHERWISE, EVEN IF NEURAL-LLM HAS BEEN ADVISED OF
+THE POSSIBILITY OF SUCH DAMAGES.
+
+NEURAL-LLM'S TOTAL AGGREGATE LIABILITY UNDER THIS AGREEMENT, FOR ANY AND
+ALL CLAIMS ARISING IN ANY 12-MONTH PERIOD, SHALL NOT EXCEED THE TOTAL
+AMOUNT YOU ACTUALLY PAID TO NEURAL-LLM FOR THE SOFTWARE IN THE TWELVE (12)
+CALENDAR MONTHS IMMEDIATELY PRECEDING THE EVENT GIVING RISE TO THE
+LIABILITY. WHERE YOUR LICENSE IS ON A FREE TIER AND NO FEES WERE PAID,
+NEURAL-LLM'S MAXIMUM LIABILITY IS USD $50.00.
+
+Some jurisdictions do not allow the exclusion or limitation of certain
+damages. In such jurisdictions, the above limitations apply to the maximum
+extent permitted by applicable law.
+
+----------------------------------------------------------------------
+9. TERMINATION
+----------------------------------------------------------------------
+
+9.1 Automatic Termination
+
+This Agreement and your license to use the Software terminate
+automatically without notice if you:
+  (a) breach any material term of this Agreement;
+  (b) use the Software to circumvent, abuse, or facilitate abuse of any
+      third-party Terms of Service;
+  (c) attempt to transfer, share, resell, or sublicense your License Key;
+  (d) initiate a fraudulent chargeback or abuse the refund policy.
+
+9.2 License Server Revocation
+
+Neural-LLM may revoke your License Key immediately and without prior
+notice upon any event described in Section 9.1. Upon revocation, the
+Software will transition to Free-tier functionality (where available) or
+cease functioning.
+
+9.3 Effect of Termination
+
+Upon termination, your license to use the Software ends immediately. You
+must uninstall the Software from all devices and destroy all copies in
+your possession. Sections 4, 8, 10, 11, 12, and 13 survive termination.
+
+9.4 Subscription Cancellation
+
+You may cancel your subscription at any time via your billing portal.
+Cancellation does not entitle you to a refund beyond what is provided in
+Section 6.
+
+----------------------------------------------------------------------
+10. EXPORT CONTROLS
+----------------------------------------------------------------------
+
+The Software may be subject to United States export control laws,
+including the Export Administration Regulations (EAR) and the sanctions
+programs administered by the U.S. Office of Foreign Assets Control
+(OFAC). You may not use, export, re-export, import, or transfer the
+Software except in full compliance with such laws and regulations.
+
+In particular, you may not use or transfer the Software to, or for the
+benefit of, any person or entity:
+  (a) located in a country or territory that is subject to comprehensive
+      U.S. trade sanctions (currently including Cuba, Iran, North Korea,
+      Syria, and the Crimea, Donetsk, and Luhansk regions of Ukraine);
+  (b) listed on the U.S. Specially Designated Nationals (SDN) List or
+      any other applicable restricted-party list; or
+  (c) for any end use prohibited under applicable export control laws,
+      including the development of chemical, biological, nuclear, or
+      radiological weapons.
+
+By using the Software, you represent and warrant that you are not located
+in, under the control of, or a national or resident of any such country
+or territory, and that you are not on any such restricted-party list.
+
+----------------------------------------------------------------------
+11. GOVERNING LAW & DISPUTE RESOLUTION
+----------------------------------------------------------------------
+
+This Agreement shall be governed by the laws of the United States and
+the State of Utah, without regard to its conflict-of-laws
+principles. Any dispute, claim, or controversy arising out of or relating
+to this Agreement, including its breach, termination, enforcement,
+interpretation, or validity, shall be resolved exclusively in the state
+or federal courts located in Draper, Utah, and you irrevocably
+consent to personal jurisdiction and venue in those courts.
+
+JURY TRIAL WAIVER: TO THE EXTENT PERMITTED BY APPLICABLE LAW, EACH
+PARTY IRREVOCABLY AND UNCONDITIONALLY WAIVES ANY RIGHT TO A JURY TRIAL
+IN ANY ACTION ARISING OUT OF OR IN CONNECTION WITH THIS AGREEMENT.
+
+----------------------------------------------------------------------
+12. CHANGES TO THIS AGREEMENT
+----------------------------------------------------------------------
+
+Neural-LLM may revise this Agreement from time to time. Material changes
+will be announced at neural-llm.com/power-claude and will take effect for
+existing subscriptions at the start of the next billing period following
+the announcement (minimum 14 days notice for material changes). Your
+continued use of the Software after the effective date constitutes your
+acceptance of the revised terms.
+
+For Free-tier users, continued use of the Software after the effective
+date of any revision constitutes acceptance of the revised terms.
+
+----------------------------------------------------------------------
+13. GENERAL PROVISIONS
+----------------------------------------------------------------------
+
+13.1 Entire Agreement
+
+This Agreement, together with the privacy policy at neural-llm.com/privacy,
+constitutes the entire agreement between you and Neural-LLM with respect
+to the Software and supersedes all prior or contemporaneous agreements,
+representations, warranties, and understandings.
+
+13.2 Severability
+
+If any provision of this Agreement is held to be invalid or unenforceable,
+that provision will be limited or eliminated to the minimum extent
+necessary and the remaining provisions will remain in full force and effect.
+
+13.3 No Waiver
+
+Neural-LLM's failure to enforce any right or provision of this Agreement
+will not be deemed a waiver of such right or provision.
+
+13.4 Assignment
+
+You may not assign or transfer this Agreement or any rights or obligations
+hereunder without Neural-LLM's prior written consent. Neural-LLM may
+assign this Agreement in connection with a merger, acquisition,
+reorganization, or sale of all or substantially all of its assets.
+
+13.5 Force Majeure
+
+Neural-LLM will not be liable for any failure or delay resulting from
+causes beyond its reasonable control, including acts of God, war, riot,
+embargoes, acts of civil or military authorities, fire, flood, or
+earthquakes.
+
+----------------------------------------------------------------------
+14. CONTACT
+----------------------------------------------------------------------
+
+Questions, license inquiries, or refund requests:
+  support@neural-llm.com
+
+Neural-LLM
+1192 E Draper Pkwy # 310, Draper, UT 84020
+https://neural-llm.com
+
+----------------------------------------------------------------------
+Document history:
+  2026-05-04 — Initial EULA (Claude Account Rotator)
+  2026-05-08 — Revised for v1.0.0 marketplace release: product renamed
+               Power Claude; free tier added; refund policy (14-day
+               money-back guarantee + prorated annual); data-stays-local
+               guarantee expanded to enumerate all file paths read; export
+               control section added; IP / trademark section expanded;
+               License Key revocability and non-transferability
+               strengthened; jury-trial waiver added.
+               
+  2026-05-11 — Entity name finalized as Neural-LLM (sole proprietorship,
+               no LLC/Inc. registration); governing jurisdiction set to
+               State of Utah; venue set to Draper, Utah; registered
+               address filled in. 
+----------------------------------------------------------------------
