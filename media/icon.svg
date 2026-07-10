@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="Power Claude">
+  <defs>
+    <!-- Tile background: deep teal → near-black, brand-consistent -->
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0e7c7b"/>
+      <stop offset="55%" stop-color="#0b3a5b"/>
+      <stop offset="100%" stop-color="#04162a"/>
+    </linearGradient>
+
+    <!-- Bolt: warm energy gradient (action / power) -->
+    <linearGradient id="bolt" x1="0.2" y1="0" x2="0.8" y2="1">
+      <stop offset="0%" stop-color="#fde68a"/>
+      <stop offset="35%" stop-color="#fb923c"/>
+      <stop offset="100%" stop-color="#f43f5e"/>
+    </linearGradient>
+
+    <!-- Active node glow: bright cyan halo around the center -->
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"  stop-color="#7dd3fc" stop-opacity="0.55"/>
+      <stop offset="60%" stop-color="#22d3ee" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#22d3ee" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Soft drop shadow under the bolt -->
+    <filter id="boltShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="2.5"/>
+      <feOffset dy="1.2"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.55"/></feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- ─── Tile ─── -->
+  <rect x="0" y="0" width="128" height="128" rx="24" ry="24" fill="url(#bg)"/>
+
+  <!-- Central glow behind the bolt (active-account halo) -->
+  <circle cx="64" cy="64" r="38" fill="url(#halo)"/>
+
+  <!-- ─── Orbital ring — three rotation slots ─── -->
+  <!-- Ring (translucent, sits behind the bolt) -->
+  <circle cx="64" cy="64" r="44" fill="none"
+          stroke="#7dd3fc" stroke-width="1.8" opacity="0.45"/>
+
+  <!-- Rotation nodes (three) — placed at 11, 1, and 6 o'clock so the bolt's
+       diagonal cuts cleanly between them and they read as orbital satellites -->
+  <g fill="#67e8f9">
+    <!-- 11 o'clock -->
+    <circle cx="28" cy="42" r="5.5"/>
+    <!-- 1 o'clock -->
+    <circle cx="100" cy="42" r="5.5"/>
+    <!-- 6 o'clock -->
+    <circle cx="64" cy="108" r="5.5"/>
+  </g>
+
+  <!-- Outer rim of each node (subtle, makes them pop on dark bg) -->
+  <g fill="none" stroke="#bae6fd" stroke-width="1.2" opacity="0.7">
+    <circle cx="28" cy="42" r="7.5"/>
+    <circle cx="100" cy="42" r="7.5"/>
+    <circle cx="64" cy="108" r="7.5"/>
+  </g>
+
+  <!-- ─── Lightning bolt — focal element ─── -->
+  <!--
+    Hand-tuned bolt geometry. Note the asymmetric flare:
+      - Wider top wedge gives the strike a "downward thrust" feel
+      - Narrow lower tip prevents the bolt from looking like a flat Z
+      - Slight rightward lean conveys motion / energy
+  -->
+  <g filter="url(#boltShadow)">
+    <path d="M 74 24
+             L 38 70
+             L 56 70
+             L 50 104
+             L 92 56
+             L 70 56
+             L 80 24
+             Z"
+          fill="url(#bolt)"
+          stroke="#fef3c7"
+          stroke-width="1.4"
+          stroke-linejoin="round"/>
+  </g>
+
+  <!-- Tiny accent spark at the bolt's tail — sells the "live current" feel -->
+  <circle cx="74" cy="26" r="2.8" fill="#fef3c7" opacity="0.9"/>
+</svg>

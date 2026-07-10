@@ -1,0 +1,4 @@
+# Marketplace/DETAILS-view screenshots referenced by README.md (relative paths).
+# Lives under media/ (a shippable asset dir) — NOT docs/, which audit-vsix.sh
+# forbids in the package. These ship in the .vsix so the installed extension's
+# DETAILS view renders offline.
