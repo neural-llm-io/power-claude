@@ -1,17 +1,12 @@
-# [grok:grok-4.5][client:0.2.93][hurc:v0.12.940] Power Claude Loader Screens (concept package notes)
+# Power Claude Loader Screens
 
-Four real CSS/SVG animated loading screens based on the Power Claude neural-node
-and lightning-bolt identity.
+Four real CSS/SVG animated loading screens based on the Power Claude neural-node and lightning-bolt identity.
 
 ## Open immediately
 
-Open `gallery.html` in the **public** pack:
+Open `gallery.html` directly in Chrome, Edge, Firefox, or a VS Code webview. It has all JavaScript embedded and does not need a local server.
 
-`power-claude-public/media/loaders/gallery.html`
-
-(Open in Chrome, Edge, Firefox, or a VS Code webview. Fully self-contained.)
-
-Standalone screens (in the original zip under `neural-llm.com/tmp/`):
+Standalone screens:
 
 - `energy-pulse.html`
 - `data-stream.html`
@@ -20,7 +15,7 @@ Standalone screens (in the original zip under `neural-llm.com/tmp/`):
 
 ## Add to Power Claude
 
-Copy `power-claude-loaders.js` into webview assets and load as a classic script:
+Copy `power-claude-loaders.js` into the extension/webview assets and load it as a normal classic script:
 
 ```html
 <script src="power-claude-loaders.js"></script>
@@ -35,11 +30,4 @@ Copy `power-claude-loaders.js` into webview assets and load as a classic script:
 
 Variants: `energy`, `data`, `circuit`, `neural`.
 
-No external images, fonts, modules, CDN, framework, or build step required.
-
-## Production note
-
-Dashboard busy states should keep using the injectable Neural Core template
-(`src/extension/webview/neuralLoader.ts` + `window.__pcLoader`). These full-screen
-variants and `power-claude-neural-ignition.gif` are for splash / marketing / optional
-agent-boot screens — not a second spinner library.
+No external images, fonts, modules, CDN calls, framework, or build step are required.
