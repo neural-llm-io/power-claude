@@ -19,6 +19,11 @@ def main():
     else:
         fail_("README missing pc proof")
         rc = 1
+    if "open-vsx.org/extension/neural-llm/power-claude" in readme or "Open VSX" in readme:
+        pass_("README documents Open VSX")
+    else:
+        fail_("README missing Open VSX")
+        rc = 1
     pkg = chr(110)+chr(112)+chr(109)
     needle_a = pkg + " install -g power-claude"
     needle_b = "npx -y power-claude"
@@ -91,6 +96,7 @@ def main():
         urls = [
             ("marketplace listing", "https://marketplace.visualstudio.com/items?itemName=neural-llm.power-claude"),
             ("open-vsx listing", "https://open-vsx.org/extension/neural-llm/power-claude"),
+            ("product site", "https://neural-llm.com/power-claude"),
         ]
         for label, murl in urls:
             try:
