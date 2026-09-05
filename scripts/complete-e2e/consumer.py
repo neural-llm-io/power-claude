@@ -142,20 +142,35 @@ def main():
                 rc = 1
         # Marketplace + Open VSX listing reachability (consumer install surfaces)
         urls = [
-            ("marketplace listing", "https://marketplace.visualstudio.com/items?itemName=neural-llm.power-claude"),
-            ("open-vsx listing", "https://open-vsx.org/extension/neural-llm/power-claude"),
-            ("product site", "https://neural-llm.com/power-claude"),
+            ("marketplace listing", "https://marketplace.visualstudio.com/items?itemName=neural-llm.power-claude", "html"),
+            ("open-vsx api", "https://open-vsx.org/api/neural-llm/power-claude", "openvsx"),
+            ("product site", "https://neural-llm.com/power-claude", "html"),
         ]
-        for label, murl in urls:
+        for label, murl, kind in urls:
             try:
-                req = urllib.request.Request(murl, headers={"User-Agent": "power-claude-consumer-e2e"})
+                req = urllib.request.Request(murl, headers={"User-Agent": "power-claude-consumer-e2e", "Accept": "application/json, text/html, */*"})
                 with urllib.request.urlopen(req, timeout=45) as resp:
                     code = getattr(resp, "status", 200)
-                if 200 <= int(code) < 400:
-                    pass_(label + " reachable")
-                else:
+                    raw = resp.read(500000)
+                if not (200 <= int(code) < 400):
                     fail_(label + " HTTP " + str(code))
                     rc = 1
+                    continue
+                if kind == "openvsx":
+                    data = json.loads(raw.decode("utf-8", errors="replace"))
+                    if data.get("namespace") == "neural-llm" and data.get("name") == "power-claude":
+                        pass_(label + " namespace/name " + str(data.get("version", "")))
+                    else:
+                        fail_(label + " unexpected identity")
+                        rc = 1
+                else:
+                    body = raw.decode("utf-8", errors="replace")
+                    needle = ("Power Claude" in body) or ("power-claude" in body) or ("neural-llm.power-claude" in body)
+                    if needle:
+                        pass_(label + " body proves Power Claude")
+                    else:
+                        fail_(label + " body missing Power Claude")
+                        rc = 1
             except Exception as e:
                 fail_(label + " " + type(e).__name__)
                 print(str(e)[:300])
