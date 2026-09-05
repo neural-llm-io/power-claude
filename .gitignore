@@ -3,3 +3,7 @@
 .hurc-harness/worktrees/
 .hurc-harness/primary-tree-pin.enabled
 .state/
+
+# Python bytecode (local verify runs)
+__pycache__/
+*.pyc
