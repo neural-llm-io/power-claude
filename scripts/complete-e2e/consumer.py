@@ -125,6 +125,37 @@ def main():
             fail_("packed CLI --version")
             print(vout[:300])
             rc = 1
+        # npm registry metadata identity (consumer install surface)
+        try:
+            reg_url = "https://registry.npmjs.org/power-claude/latest"
+            rreq = urllib.request.Request(reg_url, headers={"User-Agent": "power-claude-consumer-e2e", "Accept": "application/json"})
+            with urllib.request.urlopen(rreq, timeout=45) as rresp:
+                rraw = rresp.read(500000)
+                rcode = getattr(rresp, "status", 200)
+            if not (200 <= int(rcode) < 400):
+                fail_("registry metadata HTTP " + str(rcode))
+                rc = 1
+            else:
+                rdata = json.loads(rraw.decode("utf-8", errors="replace"))
+                rver = str(rdata.get("version") or "")
+                if rdata.get("name") != "power-claude":
+                    fail_("registry metadata unexpected name")
+                    rc = 1
+                elif rver != ver:
+                    fail_("registry metadata version " + rver + " != packed " + ver)
+                    rc = 1
+                else:
+                    lbin = rdata.get("bin") or {}
+                    if isinstance(lbin, dict) and "pc" in lbin and "power-claude" in lbin:
+                        pass_("registry metadata name/version/bin " + rver)
+                    else:
+                        fail_("registry metadata missing pc/power-claude bin")
+                        rc = 1
+        except Exception as e:
+            fail_("registry metadata " + type(e).__name__)
+            print(str(e)[:300])
+            rc = 1
+
         # Public mirror CHANGELOG should not be ahead of published package.
         cl = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8", errors="replace")
         heads = re.findall(r"^## \[([0-9]+\.[0-9]+\.[0-9]+)\]", cl, flags=re.M)
