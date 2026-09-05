@@ -176,6 +176,18 @@ def main():
                                 fail_("registry tarball HEAD " + type(te).__name__)
                                 print(str(te)[:300])
                                 rc = 1
+                            integrity = str(dist.get("integrity") or "")
+                            fcount = dist.get("fileCount")
+                            if integrity.startswith("sha512-") and len(integrity) > 20:
+                                pass_("registry dist.integrity sha512")
+                            else:
+                                fail_("registry dist.integrity missing/unexpected")
+                                rc = 1
+                            if isinstance(fcount, int) and fcount > 0:
+                                pass_("registry dist.fileCount " + str(fcount))
+                            else:
+                                fail_("registry dist.fileCount unexpected")
+                                rc = 1
         except Exception as e:
             fail_("registry metadata " + type(e).__name__)
             print(str(e)[:300])
