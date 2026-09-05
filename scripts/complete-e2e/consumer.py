@@ -219,6 +219,7 @@ def main():
             ("marketplace listing", "https://marketplace.visualstudio.com/items?itemName=neural-llm.power-claude", "html"),
             ("open-vsx api", "https://open-vsx.org/api/neural-llm/power-claude", "openvsx"),
             ("product site", "https://neural-llm.com/power-claude", "html"),
+            ("pricing page", "https://neural-llm.com/pricing", "html"),
         ]
         for label, murl, kind in urls:
             try:
