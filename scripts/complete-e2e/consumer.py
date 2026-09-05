@@ -92,6 +92,23 @@ def main():
             fail_("packed CLI proof --help")
             print(out[:500])
             rc = 1
+        for cmd in ("halt", "doctor"):
+            cr = subprocess.run([node, str(bin_path), cmd, "--help"], cwd=str(pkg_dir), capture_output=True, text=True)
+            cout = (cr.stdout or "") + (cr.stderr or "")
+            if cr.returncode == 0 or cmd in cout.lower():
+                pass_("packed CLI " + cmd + " --help")
+            else:
+                fail_("packed CLI " + cmd + " --help")
+                print(cout[:400])
+                rc = 1
+        vr = subprocess.run([node, str(bin_path), "--version"], cwd=str(pkg_dir), capture_output=True, text=True)
+        vout = ((vr.stdout or "") + (vr.stderr or "")).strip()
+        if vr.returncode == 0 and ver in vout:
+            pass_("packed CLI --version matches " + ver)
+        else:
+            fail_("packed CLI --version")
+            print(vout[:300])
+            rc = 1
         # Marketplace + Open VSX listing reachability (consumer install surfaces)
         urls = [
             ("marketplace listing", "https://marketplace.visualstudio.com/items?itemName=neural-llm.power-claude"),
