@@ -140,6 +140,49 @@ def main():
             else:
                 fail_("CHANGELOG head " + head + " ahead of published " + ver)
                 rc = 1
+        # VS Marketplace gallery API identity (consumer install surface)
+        try:
+            mq = {
+                "filters": [{"criteria": [{"filterType": 7, "value": "neural-llm.power-claude"}], "pageNumber": 1, "pageSize": 1}],
+                "flags": 914,
+            }
+            mreq = urllib.request.Request(
+                "https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery?api-version=7.1-preview.1",
+                data=json.dumps(mq).encode(),
+                headers={
+                    "Content-Type": "application/json",
+                    "Accept": "application/json;api-version=7.1-preview.1",
+                    "User-Agent": "power-claude-consumer-e2e",
+                },
+                method="POST",
+            )
+            with urllib.request.urlopen(mreq, timeout=45) as resp:
+                mraw = resp.read(500000)
+                mcode = getattr(resp, "status", 200)
+            if not (200 <= int(mcode) < 400):
+                fail_("marketplace api HTTP " + str(mcode))
+                rc = 1
+            else:
+                mdata = json.loads(mraw.decode("utf-8", errors="replace"))
+                exts = ((mdata.get("results") or [{}])[0].get("extensions") or [])
+                if not exts:
+                    fail_("marketplace api empty extensions")
+                    rc = 1
+                else:
+                    e0 = exts[0]
+                    pub = (e0.get("publisher") or {}).get("publisherName")
+                    name = e0.get("extensionName")
+                    ver0 = ((e0.get("versions") or [{}])[0].get("version")) if e0.get("versions") else None
+                    if pub == "neural-llm" and name == "power-claude":
+                        pass_("marketplace api publisher/name " + str(ver0 or ""))
+                    else:
+                        fail_("marketplace api unexpected identity")
+                        rc = 1
+        except Exception as e:
+            fail_("marketplace api " + type(e).__name__)
+            print(str(e)[:300])
+            rc = 1
+
         # Marketplace + Open VSX listing reachability (consumer install surfaces)
         urls = [
             ("marketplace listing", "https://marketplace.visualstudio.com/items?itemName=neural-llm.power-claude", "html"),
