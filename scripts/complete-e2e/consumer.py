@@ -346,6 +346,21 @@ def main():
                                     fail_("open-vsx " + asset + " HEAD " + type(ae).__name__)
                                     print(str(ae)[:300])
                                     rc = 1
+                            sha_url = (data.get("files") or {}).get("sha256")
+                            if sha_url:
+                                try:
+                                    sreq = urllib.request.Request(sha_url, headers={"User-Agent": "power-claude-consumer-e2e"})
+                                    with urllib.request.urlopen(sreq, timeout=45) as sresp:
+                                        sbody = sresp.read(200).decode("utf-8", errors="replace").strip()
+                                    if re.fullmatch(r"[a-fA-F0-9]{64}", sbody):
+                                        pass_("open-vsx sha256 body " + sbody[:12])
+                                    else:
+                                        fail_("open-vsx sha256 body unexpected")
+                                        rc = 1
+                                except Exception as se:
+                                    fail_("open-vsx sha256 body " + type(se).__name__)
+                                    print(str(se)[:300])
+                                    rc = 1
                 else:
                     body = raw.decode("utf-8", errors="replace")
                     needle = ("Power Claude" in body) or ("power-claude" in body) or ("neural-llm.power-claude" in body)
