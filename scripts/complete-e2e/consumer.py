@@ -233,11 +233,31 @@ def main():
                     continue
                 if kind == "openvsx":
                     data = json.loads(raw.decode("utf-8", errors="replace"))
-                    if data.get("namespace") == "neural-llm" and data.get("name") == "power-claude":
-                        pass_(label + " namespace/name " + str(data.get("version", "")))
-                    else:
+                    if data.get("namespace") != "neural-llm" or data.get("name") != "power-claude":
                         fail_(label + " unexpected identity")
                         rc = 1
+                    else:
+                        pass_(label + " namespace/name " + str(data.get("version", "")))
+                        home = str(data.get("homepage") or "")
+                        if "neural-llm.com/power-claude" in home:
+                            pass_("open-vsx homepage " + home)
+                        else:
+                            fail_("open-vsx homepage unexpected")
+                            rc = 1
+                        dl = ((data.get("files") or {}).get("download"))
+                        if not dl:
+                            fail_("open-vsx missing download")
+                            rc = 1
+                        else:
+                            dreq = urllib.request.Request(dl, method="HEAD", headers={"User-Agent": "power-claude-consumer-e2e"})
+                            with urllib.request.urlopen(dreq, timeout=45) as dresp:
+                                dcode = getattr(dresp, "status", 200)
+                                clen = dresp.headers.get("Content-Length")
+                            if 200 <= int(dcode) < 400 and clen and int(clen) > 1000:
+                                pass_("open-vsx vsix download HEAD " + str(clen))
+                            else:
+                                fail_("open-vsx vsix download HEAD")
+                                rc = 1
                 else:
                     body = raw.decode("utf-8", errors="replace")
                     needle = ("Power Claude" in body) or ("power-claude" in body) or ("neural-llm.power-claude" in body)
