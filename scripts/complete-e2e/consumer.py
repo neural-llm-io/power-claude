@@ -326,7 +326,7 @@ def main():
                             else:
                                 fail_("open-vsx vsix download HEAD")
                                 rc = 1
-                            for asset in ("icon", "license"):
+                            for asset, min_len in (("icon", 100), ("license", 100), ("readme", 100), ("sha256", 32)):
                                 aurl = (data.get("files") or {}).get(asset)
                                 if not aurl:
                                     fail_("open-vsx missing " + asset)
@@ -337,7 +337,7 @@ def main():
                                     with urllib.request.urlopen(areq, timeout=45) as aresp:
                                         acode = getattr(aresp, "status", 200)
                                         alen = aresp.headers.get("Content-Length")
-                                    if 200 <= int(acode) < 400 and alen and int(alen) > 100:
+                                    if 200 <= int(acode) < 400 and alen and int(alen) >= min_len:
                                         pass_("open-vsx " + asset + " HEAD " + str(alen))
                                     else:
                                         fail_("open-vsx " + asset + " HEAD")
