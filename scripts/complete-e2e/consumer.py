@@ -229,11 +229,32 @@ def main():
                     pub = (e0.get("publisher") or {}).get("publisherName")
                     name = e0.get("extensionName")
                     ver0 = ((e0.get("versions") or [{}])[0].get("version")) if e0.get("versions") else None
-                    if pub == "neural-llm" and name == "power-claude":
-                        pass_("marketplace api publisher/name " + str(ver0 or ""))
-                    else:
+                    if pub != "neural-llm" or name != "power-claude":
                         fail_("marketplace api unexpected identity")
                         rc = 1
+                    else:
+                        pass_("marketplace api publisher/name " + str(ver0 or ""))
+                        files = (e0.get("versions") or [{}])[0].get("files") or []
+                        vsix = [f for f in files if f.get("assetType") == "Microsoft.VisualStudio.Services.VSIXPackage"]
+                        if not vsix or not vsix[0].get("source"):
+                            fail_("marketplace api missing VSIXPackage")
+                            rc = 1
+                        else:
+                            src = vsix[0]["source"]
+                            try:
+                                vreq = urllib.request.Request(src, method="HEAD", headers={"User-Agent": "power-claude-consumer-e2e"})
+                                with urllib.request.urlopen(vreq, timeout=60) as vresp:
+                                    vcode = getattr(vresp, "status", 200)
+                                    clen = vresp.headers.get("Content-Length")
+                                if 200 <= int(vcode) < 400 and clen and int(clen) > 1000:
+                                    pass_("marketplace vsix HEAD " + str(clen))
+                                else:
+                                    fail_("marketplace vsix HEAD")
+                                    rc = 1
+                            except Exception as ve:
+                                fail_("marketplace vsix HEAD " + type(ve).__name__)
+                                print(str(ve)[:300])
+                                rc = 1
         except Exception as e:
             fail_("marketplace api " + type(e).__name__)
             print(str(e)[:300])
