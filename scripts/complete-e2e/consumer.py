@@ -67,6 +67,16 @@ def main():
             fail_("packed CLI help")
             print((help_r.stderr or help_r.stdout)[:500])
             rc = 1
+            return rc
+        proof_r = subprocess.run([node, str(bin_path), "proof", "--help"], cwd=str(pkg_dir), capture_output=True, text=True)
+        out = (proof_r.stdout or "") + (proof_r.stderr or "")
+        if proof_r.returncode == 0 or "proof" in out.lower():
+            pass_("packed CLI proof --help")
+        else:
+            fail_("packed CLI proof --help")
+            print(out[:500])
+            rc = 1
+
     finally:
         import shutil
         shutil.rmtree(tmp, ignore_errors=True)
