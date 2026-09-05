@@ -43,10 +43,24 @@ def main():
         if not tgz:
             fail_("no tarball after pack")
             return 1
-        npx = "np" + "x"
-        help_r = subprocess.run([npx, "--yes", str(tgz[0]), "--help"], cwd=tmp, capture_output=True, text=True)
+        extract = Path(tmp) / "extract"
+        extract.mkdir()
+        subprocess.run(["tar", "-xzf", str(tgz[0]), "-C", str(extract)], check=True)
+        pkg_dir = extract / "package"
+        meta = json.loads((pkg_dir / "package.json").read_text())
+        bin_field = meta.get("bin")
+        if isinstance(bin_field, dict):
+            bin_rel = next(iter(bin_field.values()))
+        else:
+            bin_rel = bin_field
+        if not bin_rel:
+            fail_("package.json missing bin")
+            return 1
+        bin_path = pkg_dir / bin_rel
+        node = "node"
+        help_r = subprocess.run([node, str(bin_path), "--help"], cwd=str(pkg_dir), capture_output=True, text=True)
         if help_r.returncode != 0:
-            help_r = subprocess.run([npx, "--yes", str(tgz[0]), "help"], cwd=tmp, capture_output=True, text=True)
+            help_r = subprocess.run([node, str(bin_path), "help"], cwd=str(pkg_dir), capture_output=True, text=True)
         if help_r.returncode == 0:
             pass_("packed CLI help")
         else:
