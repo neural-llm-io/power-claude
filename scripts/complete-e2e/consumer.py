@@ -304,6 +304,26 @@ def main():
                             else:
                                 fail_("open-vsx vsix download HEAD")
                                 rc = 1
+                            for asset in ("icon", "license"):
+                                aurl = (data.get("files") or {}).get(asset)
+                                if not aurl:
+                                    fail_("open-vsx missing " + asset)
+                                    rc = 1
+                                    continue
+                                try:
+                                    areq = urllib.request.Request(aurl, method="HEAD", headers={"User-Agent": "power-claude-consumer-e2e"})
+                                    with urllib.request.urlopen(areq, timeout=45) as aresp:
+                                        acode = getattr(aresp, "status", 200)
+                                        alen = aresp.headers.get("Content-Length")
+                                    if 200 <= int(acode) < 400 and alen and int(alen) > 100:
+                                        pass_("open-vsx " + asset + " HEAD " + str(alen))
+                                    else:
+                                        fail_("open-vsx " + asset + " HEAD")
+                                        rc = 1
+                                except Exception as ae:
+                                    fail_("open-vsx " + asset + " HEAD " + type(ae).__name__)
+                                    print(str(ae)[:300])
+                                    rc = 1
                 else:
                     body = raw.decode("utf-8", errors="replace")
                     needle = ("Power Claude" in body) or ("power-claude" in body) or ("neural-llm.power-claude" in body)
