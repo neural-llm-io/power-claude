@@ -19,6 +19,17 @@ def main():
     else:
         fail_("README missing install-extension")
         rc = 1
+    if "neural-llm.com/pricing" in readme:
+        pass_("README documents pricing")
+    else:
+        fail_("README missing pricing")
+        rc = 1
+    lic = (ROOT / "LICENSE").read_text(encoding="utf-8", errors="replace")
+    if len(lic.strip()) > 100 and "Neural-LLM" in lic:
+        pass_("LICENSE present with Neural-LLM")
+    else:
+        fail_("LICENSE missing/invalid")
+        rc = 1
     if "pc proof" in readme:
         pass_("README documents pc proof")
     else:
