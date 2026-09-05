@@ -14,6 +14,11 @@ def main():
     else:
         fail_("README missing extension id")
         rc = 1
+    if "install-extension neural-llm.power-claude" in readme:
+        pass_("README documents install-extension")
+    else:
+        fail_("README missing install-extension")
+        rc = 1
     if "pc proof" in readme:
         pass_("README documents pc proof")
     else:
@@ -92,7 +97,7 @@ def main():
             fail_("packed CLI proof --help")
             print(out[:500])
             rc = 1
-        for cmd in ("halt", "doctor"):
+        for cmd in ("halt", "doctor", "emergency-off"):
             cr = subprocess.run([node, str(bin_path), cmd, "--help"], cwd=str(pkg_dir), capture_output=True, text=True)
             cout = (cr.stdout or "") + (cr.stderr or "")
             if cr.returncode == 0 or cmd in cout.lower():
