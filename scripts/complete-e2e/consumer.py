@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import json, os, subprocess, tempfile, urllib.error, urllib.request
+import json, os, re, subprocess, tempfile, urllib.error, urllib.request
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 def pass_(m): print("  PASS  " + m)
@@ -114,6 +114,21 @@ def main():
             fail_("packed CLI --version")
             print(vout[:300])
             rc = 1
+        # Public mirror CHANGELOG should not be ahead of published package.
+        cl = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8", errors="replace")
+        heads = re.findall(r"^## \[([0-9]+\.[0-9]+\.[0-9]+)\]", cl, flags=re.M)
+        if not heads:
+            fail_("CHANGELOG missing version headings")
+            rc = 1
+        else:
+            head = heads[0]
+            def tup(v):
+                return tuple(int(x) for x in v.split("."))
+            if tup(head) <= tup(ver):
+                pass_("CHANGELOG head " + head + " <= published " + ver)
+            else:
+                fail_("CHANGELOG head " + head + " ahead of published " + ver)
+                rc = 1
         # Marketplace + Open VSX listing reachability (consumer install surfaces)
         urls = [
             ("marketplace listing", "https://marketplace.visualstudio.com/items?itemName=neural-llm.power-claude"),
