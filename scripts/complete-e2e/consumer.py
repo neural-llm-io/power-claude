@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import json, os, subprocess, tempfile
+import json, os, subprocess, tempfile, urllib.error, urllib.request
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 def pass_(m): print("  PASS  " + m)
@@ -50,9 +50,20 @@ def main():
         meta = json.loads((pkg_dir / "package.json").read_text())
         bin_field = meta.get("bin")
         if isinstance(bin_field, dict):
-            bin_rel = next(iter(bin_field.values()))
+            if "pc" in bin_field and "power-claude" in bin_field:
+                pass_("package.json bin has pc + power-claude")
+            else:
+                fail_("package.json bin missing pc/power-claude aliases")
+                return 1
+            bin_rel = bin_field.get("pc") or next(iter(bin_field.values()))
         else:
             bin_rel = bin_field
+        ver = str(meta.get("version") or "")
+        if ver.count(".") >= 2:
+            pass_("package.json version " + ver)
+        else:
+            fail_("package.json version missing/invalid")
+            return 1
         if not bin_rel:
             fail_("package.json missing bin")
             return 1
@@ -75,6 +86,21 @@ def main():
         else:
             fail_("packed CLI proof --help")
             print(out[:500])
+            rc = 1
+        # Marketplace listing reachability (consumer install surface)
+        murl = "https://marketplace.visualstudio.com/items?itemName=neural-llm.power-claude"
+        try:
+            req = urllib.request.Request(murl, headers={"User-Agent": "power-claude-consumer-e2e"})
+            with urllib.request.urlopen(req, timeout=45) as resp:
+                code = getattr(resp, "status", 200)
+            if 200 <= int(code) < 400:
+                pass_("marketplace listing reachable")
+            else:
+                fail_("marketplace listing HTTP " + str(code))
+                rc = 1
+        except Exception as e:
+            fail_("marketplace listing " + type(e).__name__)
+            print(str(e)[:300])
             rc = 1
 
     finally:
