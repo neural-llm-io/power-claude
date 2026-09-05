@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import json, os, re, subprocess, sys, tempfile
+import json, os, subprocess, tempfile
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 def pass_(m): print("  PASS  " + m)
