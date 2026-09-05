@@ -146,11 +146,36 @@ def main():
                     rc = 1
                 else:
                     lbin = rdata.get("bin") or {}
-                    if isinstance(lbin, dict) and "pc" in lbin and "power-claude" in lbin:
-                        pass_("registry metadata name/version/bin " + rver)
-                    else:
+                    if not (isinstance(lbin, dict) and "pc" in lbin and "power-claude" in lbin):
                         fail_("registry metadata missing pc/power-claude bin")
                         rc = 1
+                    else:
+                        pass_("registry metadata name/version/bin " + rver)
+                        dist = rdata.get("dist") or {}
+                        tb = str(dist.get("tarball") or "")
+                        want = "power-claude-" + rver + ".tgz"
+                        shasum = str(dist.get("shasum") or "")
+                        if want not in tb:
+                            fail_("registry tarball URL missing " + want)
+                            rc = 1
+                        elif len(shasum) != 40:
+                            fail_("registry dist.shasum unexpected")
+                            rc = 1
+                        else:
+                            pass_("registry tarball URL+shasum " + rver)
+                            try:
+                                treq = urllib.request.Request(tb, method="HEAD", headers={"User-Agent": "power-claude-consumer-e2e"})
+                                with urllib.request.urlopen(treq, timeout=45) as tresp:
+                                    tcode = getattr(tresp, "status", 200)
+                                if 200 <= int(tcode) < 400:
+                                    pass_("registry tarball HEAD " + str(tcode))
+                                else:
+                                    fail_("registry tarball HEAD HTTP " + str(tcode))
+                                    rc = 1
+                            except Exception as te:
+                                fail_("registry tarball HEAD " + type(te).__name__)
+                                print(str(te)[:300])
+                                rc = 1
         except Exception as e:
             fail_("registry metadata " + type(e).__name__)
             print(str(e)[:300])
