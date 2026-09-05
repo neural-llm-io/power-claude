@@ -87,21 +87,25 @@ def main():
             fail_("packed CLI proof --help")
             print(out[:500])
             rc = 1
-        # Marketplace listing reachability (consumer install surface)
-        murl = "https://marketplace.visualstudio.com/items?itemName=neural-llm.power-claude"
-        try:
-            req = urllib.request.Request(murl, headers={"User-Agent": "power-claude-consumer-e2e"})
-            with urllib.request.urlopen(req, timeout=45) as resp:
-                code = getattr(resp, "status", 200)
-            if 200 <= int(code) < 400:
-                pass_("marketplace listing reachable")
-            else:
-                fail_("marketplace listing HTTP " + str(code))
+        # Marketplace + Open VSX listing reachability (consumer install surfaces)
+        urls = [
+            ("marketplace listing", "https://marketplace.visualstudio.com/items?itemName=neural-llm.power-claude"),
+            ("open-vsx listing", "https://open-vsx.org/extension/neural-llm/power-claude"),
+        ]
+        for label, murl in urls:
+            try:
+                req = urllib.request.Request(murl, headers={"User-Agent": "power-claude-consumer-e2e"})
+                with urllib.request.urlopen(req, timeout=45) as resp:
+                    code = getattr(resp, "status", 200)
+                if 200 <= int(code) < 400:
+                    pass_(label + " reachable")
+                else:
+                    fail_(label + " HTTP " + str(code))
+                    rc = 1
+            except Exception as e:
+                fail_(label + " " + type(e).__name__)
+                print(str(e)[:300])
                 rc = 1
-        except Exception as e:
-            fail_("marketplace listing " + type(e).__name__)
-            print(str(e)[:300])
-            rc = 1
 
     finally:
         import shutil
