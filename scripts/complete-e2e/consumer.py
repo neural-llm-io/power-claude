@@ -255,6 +255,28 @@ def main():
                                 fail_("marketplace vsix HEAD " + type(ve).__name__)
                                 print(str(ve)[:300])
                                 rc = 1
+                            for asset_type, label in (
+                                ("Microsoft.VisualStudio.Services.Content.License", "license"),
+                                ("Microsoft.VisualStudio.Services.Icons.Default", "icon"),
+                            ):
+                                hits = [f for f in files if f.get("assetType") == asset_type]
+                                if not hits or not hits[0].get("source"):
+                                    fail_("marketplace missing " + label)
+                                    rc = 1
+                                    continue
+                                try:
+                                    areq = urllib.request.Request(hits[0]["source"], method="HEAD", headers={"User-Agent": "power-claude-consumer-e2e"})
+                                    with urllib.request.urlopen(areq, timeout=60) as aresp:
+                                        acode = getattr(aresp, "status", 200)
+                                    if 200 <= int(acode) < 400:
+                                        pass_("marketplace " + label + " HEAD " + str(acode))
+                                    else:
+                                        fail_("marketplace " + label + " HEAD")
+                                        rc = 1
+                                except Exception as ae:
+                                    fail_("marketplace " + label + " HEAD " + type(ae).__name__)
+                                    print(str(ae)[:300])
+                                    rc = 1
         except Exception as e:
             fail_("marketplace api " + type(e).__name__)
             print(str(e)[:300])
