@@ -400,6 +400,12 @@ def main():
                         else:
                             fail_("product site missing /pricing link")
                             rc = 1
+                    if label == "pricing page":
+                        if "/power-claude" in body:
+                            pass_("pricing page links product")
+                        else:
+                            fail_("pricing page missing /power-claude link")
+                            rc = 1
             except Exception as e:
                 fail_(label + " " + type(e).__name__)
                 print(str(e)[:300])
