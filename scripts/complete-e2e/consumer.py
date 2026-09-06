@@ -265,6 +265,18 @@ def main():
                         rc = 1
                     else:
                         pass_("marketplace api publisher/name " + str(ver0 or ""))
+                        disp = str(e0.get("displayName") or "").strip()
+                        sdesc = str(e0.get("shortDescription") or "").strip()
+                        if disp:
+                            pass_("marketplace api displayName " + disp[:40])
+                        else:
+                            fail_("marketplace api missing displayName")
+                            rc = 1
+                        if len(sdesc) > 10:
+                            pass_("marketplace api shortDescription")
+                        else:
+                            fail_("marketplace api shortDescription missing/short")
+                            rc = 1
                         files = (e0.get("versions") or [{}])[0].get("files") or []
                         vsix = [f for f in files if f.get("assetType") == "Microsoft.VisualStudio.Services.VSIXPackage"]
                         if not vsix or not vsix[0].get("source"):
