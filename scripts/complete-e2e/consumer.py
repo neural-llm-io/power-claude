@@ -362,6 +362,12 @@ def main():
                         else:
                             fail_("open-vsx description missing/short")
                             rc = 1
+                        dlc = data.get("downloadCount")
+                        if isinstance(dlc, int) and dlc >= 0:
+                            pass_("open-vsx downloadCount " + str(dlc))
+                        else:
+                            fail_("open-vsx downloadCount unexpected")
+                            rc = 1
                         home = str(data.get("homepage") or "")
                         if "neural-llm.com/power-claude" in home:
                             pass_("open-vsx homepage " + home)
