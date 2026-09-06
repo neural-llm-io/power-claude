@@ -349,6 +349,18 @@ def main():
                         rc = 1
                     else:
                         pass_(label + " namespace/name " + str(data.get("version", "")))
+                        odisp = str(data.get("displayName") or "").strip()
+                        odesc = str(data.get("description") or "").strip()
+                        if odisp:
+                            pass_("open-vsx displayName " + odisp[:40])
+                        else:
+                            fail_("open-vsx missing displayName")
+                            rc = 1
+                        if len(odesc) > 10:
+                            pass_("open-vsx description")
+                        else:
+                            fail_("open-vsx description missing/short")
+                            rc = 1
                         home = str(data.get("homepage") or "")
                         if "neural-llm.com/power-claude" in home:
                             pass_("open-vsx homepage " + home)
