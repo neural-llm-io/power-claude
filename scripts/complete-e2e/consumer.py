@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import json, os, re, subprocess, tempfile, urllib.error, urllib.request
+import hashlib, json, os, re, subprocess, tempfile, urllib.error, urllib.request
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 def pass_(m): print("  PASS  " + m)
@@ -187,6 +187,13 @@ def main():
                                 pass_("registry dist.fileCount " + str(fcount))
                             else:
                                 fail_("registry dist.fileCount unexpected")
+                                rc = 1
+                            packed_sha = hashlib.sha1(tgz[0].read_bytes()).hexdigest()
+                            if packed_sha == shasum:
+                                pass_("packed tarball sha1 matches registry")
+                            else:
+                                fail_("packed tarball sha1 != registry shasum")
+                                print("packed=" + packed_sha + " registry=" + shasum)
                                 rc = 1
         except Exception as e:
             fail_("registry metadata " + type(e).__name__)
