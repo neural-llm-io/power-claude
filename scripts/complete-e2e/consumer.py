@@ -277,6 +277,13 @@ def main():
                         else:
                             fail_("marketplace api shortDescription missing/short")
                             rc = 1
+                        stats = e0.get("statistics") or []
+                        install = next((s.get("value") for s in stats if s.get("statisticName") == "install"), None)
+                        if isinstance(install, (int, float)) and install >= 0:
+                            pass_("marketplace api install " + str(int(install)))
+                        else:
+                            fail_("marketplace api install statistic missing")
+                            rc = 1
                         files = (e0.get("versions") or [{}])[0].get("files") or []
                         vsix = [f for f in files if f.get("assetType") == "Microsoft.VisualStudio.Services.VSIXPackage"]
                         if not vsix or not vsix[0].get("source"):
