@@ -188,6 +188,12 @@ def main():
                             else:
                                 fail_("registry dist.fileCount unexpected")
                                 rc = 1
+                            usize = dist.get("unpackedSize")
+                            if isinstance(usize, int) and usize > 1000:
+                                pass_("registry dist.unpackedSize " + str(usize))
+                            else:
+                                fail_("registry dist.unpackedSize unexpected")
+                                rc = 1
                             packed_sha = hashlib.sha1(tgz[0].read_bytes()).hexdigest()
                             if packed_sha == shasum:
                                 pass_("packed tarball sha1 matches registry")
