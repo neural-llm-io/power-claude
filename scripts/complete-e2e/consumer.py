@@ -195,6 +195,12 @@ def main():
                                 fail_("packed tarball sha1 != registry shasum")
                                 print("packed=" + packed_sha + " registry=" + shasum)
                                 rc = 1
+                            packed_files = sum(1 for x in pkg_dir.rglob("*") if x.is_file())
+                            if isinstance(fcount, int) and packed_files == fcount:
+                                pass_("packed file count matches registry " + str(fcount))
+                            else:
+                                fail_("packed file count " + str(packed_files) + " != registry " + str(fcount))
+                                rc = 1
         except Exception as e:
             fail_("registry metadata " + type(e).__name__)
             print(str(e)[:300])
