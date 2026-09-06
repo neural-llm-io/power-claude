@@ -300,6 +300,7 @@ def main():
                                 rc = 1
                             for asset_type, label in (
                                 ("Microsoft.VisualStudio.Services.Content.License", "license"),
+                                ("Microsoft.VisualStudio.Services.Content.Details", "details"),
                                 ("Microsoft.VisualStudio.Services.Icons.Default", "icon"),
                             ):
                                 hits = [f for f in files if f.get("assetType") == asset_type]
