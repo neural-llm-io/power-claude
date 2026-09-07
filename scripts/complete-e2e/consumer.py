@@ -259,20 +259,67 @@ def main():
             else:
                 fail_("packed media/walkthrough missing core guides")
                 rc = 1
-            for jrel, label in (
-                ("data/brand-stamp/feature-matrix.json", "feature-matrix.json"),
-                ("data/llm-usage/prices.default.json", "prices.default.json"),
-                ("data/vendor/jq/manifest.json", "jq manifest.json"),
-            ):
-                jp = pkg_dir / jrel
-                try:
-                    if not jp.is_file() or jp.stat().st_size < 50:
-                        raise ValueError("missing/small")
-                    json.loads(jp.read_text(encoding="utf-8"))
-                    pass_("packed " + label + " json")
-                except Exception:
-                    fail_("packed " + label + " json invalid")
+            # feature-matrix contract
+            try:
+                fm_path = pkg_dir / "data" / "brand-stamp" / "feature-matrix.json"
+                fm = json.loads(fm_path.read_text(encoding="utf-8"))
+                feats = fm.get("features") if isinstance(fm, dict) else None
+                if isinstance(fm, dict) and fm.get("schemaVersion") == 1 and isinstance(feats, dict) and "pc-auto-resume" in feats:
+                    pass_("packed feature-matrix has pc-auto-resume")
+                else:
+                    fail_("packed feature-matrix contract unexpected")
                     rc = 1
+            except Exception as e:
+                fail_("packed feature-matrix " + type(e).__name__)
+                rc = 1
+            # prices.default contract
+            try:
+                pr_path = pkg_dir / "data" / "llm-usage" / "prices.default.json"
+                pr = json.loads(pr_path.read_text(encoding="utf-8"))
+                plans = pr.get("planPricing") if isinstance(pr, dict) else None
+                api = pr.get("apiPricing") if isinstance(pr, dict) else None
+                if (
+                    isinstance(pr, dict)
+                    and pr.get("schemaVersion") == 1
+                    and isinstance(plans, dict)
+                    and all(k in plans for k in ("pro", "max_5x", "max_20x"))
+                    and isinstance(api, dict)
+                    and len(api) >= 1
+                ):
+                    pass_("packed prices.default planPricing pro/max")
+                else:
+                    fail_("packed prices.default contract unexpected")
+                    rc = 1
+            except Exception as e:
+                fail_("packed prices.default " + type(e).__name__)
+                rc = 1
+            # vendored jq manifest + linux-amd64 sha256
+            try:
+                jq_path = pkg_dir / "data" / "vendor" / "jq" / "manifest.json"
+                jq = json.loads(jq_path.read_text(encoding="utf-8"))
+                bins = jq.get("binaries") if isinstance(jq, dict) else None
+                linux = bins.get("linux-amd64") if isinstance(bins, dict) else None
+                if not (isinstance(jq, dict) and jq.get("tool") == "jq" and isinstance(linux, dict)):
+                    fail_("packed jq manifest contract unexpected")
+                    rc = 1
+                else:
+                    pass_("packed jq manifest linux-amd64 entry")
+                    out_name = str(linux.get("out") or "")
+                    want = str(linux.get("sha256") or "")
+                    bin_file = pkg_dir / "data" / "vendor" / "jq" / out_name
+                    if bin_file.is_file() and re.fullmatch(r"[a-fA-F0-9]{64}", want):
+                        got = hashlib.sha256(bin_file.read_bytes()).hexdigest()
+                        if got.lower() == want.lower():
+                            pass_("packed jq linux-amd64 sha256 matches")
+                        else:
+                            fail_("packed jq linux-amd64 sha256 mismatch")
+                            rc = 1
+                    else:
+                        fail_("packed jq linux-amd64 binary/sha missing")
+                        rc = 1
+            except Exception as e:
+                fail_("packed jq manifest " + type(e).__name__)
+                rc = 1
         else:
             fail_("packed out/extension.js missing/small")
             rc = 1
