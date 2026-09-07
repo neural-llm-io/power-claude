@@ -121,6 +121,19 @@ def main():
         else:
             fail_("packed LICENSE missing")
             rc = 1
+        for rel, label in (("README.md", "README"), ("CHANGELOG.md", "CHANGELOG")):
+            pf = pkg_dir / rel
+            if pf.is_file() and len(pf.read_text(encoding="utf-8", errors="replace").strip()) > 100:
+                pass_("packed " + label + " present")
+            else:
+                fail_("packed " + label + " missing/short")
+                rc = 1
+        desc = str(meta.get("description") or "")
+        if "Claude" in desc and ("Save" in desc or "$" in desc):
+            pass_("packed description value prop")
+        else:
+            fail_("packed description missing value prop")
+            rc = 1
         if not bin_rel:
             fail_("package.json missing bin")
             return 1
@@ -132,7 +145,7 @@ def main():
         if help_r.returncode == 0:
             pass_("packed CLI help")
             help_out = ((help_r.stdout or "") + (help_r.stderr or "")).lower()
-            missing_cmds = [c for c in ("proof", "halt", "doctor", "emergency-off") if c not in help_out]
+            missing_cmds = [c for c in ("proof", "halt", "doctor", "emergency-off", "rotation", "emergency") if c not in help_out]
             if not missing_cmds:
                 pass_("packed CLI help lists consumer commands")
             else:
@@ -185,6 +198,12 @@ def main():
             pass_("packed CLI doctor --help mentions emergency")
         else:
             fail_("packed CLI doctor --help missing emergency")
+            print(dout[:400])
+            rc = 1
+        if "repair-plan" in dout or "--repair-plan" in dout:
+            pass_("packed CLI doctor --help documents repair-plan")
+        else:
+            fail_("packed CLI doctor --help missing repair-plan")
             print(dout[:400])
             rc = 1
         rot = subprocess.run([node, str(bin_path), "rotation", "--help"], cwd=str(pkg_dir), capture_output=True, text=True)
@@ -421,6 +440,18 @@ def main():
                             pass_("marketplace api install " + str(int(install)))
                         else:
                             fail_("marketplace api install statistic missing")
+                            rc = 1
+                        lu = str(e0.get("lastUpdated") or "")
+                        if "T" in lu and len(lu) >= 10:
+                            pass_("marketplace api lastUpdated " + lu[:10])
+                        else:
+                            fail_("marketplace api lastUpdated unexpected")
+                            rc = 1
+                        pd = str(e0.get("publishedDate") or "")
+                        if "T" in pd and len(pd) >= 10:
+                            pass_("marketplace api publishedDate " + pd[:10])
+                        else:
+                            fail_("marketplace api publishedDate unexpected")
                             rc = 1
                         files = (e0.get("versions") or [{}])[0].get("files") or []
                         vsix = [f for f in files if f.get("assetType") == "Microsoft.VisualStudio.Services.VSIXPackage"]
