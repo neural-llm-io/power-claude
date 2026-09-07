@@ -50,6 +50,11 @@ def main():
     else:
         fail_("README missing pc emergency")
         rc = 1
+    if "github.com/neural-llm-io/power-claude/issues" in readme:
+        pass_("README documents issues URL")
+    else:
+        fail_("README missing issues URL")
+        rc = 1
     if "open-vsx.org/extension/neural-llm/power-claude" in readme or "Open VSX" in readme:
         pass_("README documents Open VSX")
     else:
@@ -143,6 +148,19 @@ def main():
                 fail_("packed CLI proof --help missing recover")
                 print(out[:500])
                 rc = 1
+            out_l = out.lower()
+            if "--protect" in out_l or "protect" in out_l:
+                pass_("packed CLI proof --help documents protect")
+            else:
+                fail_("packed CLI proof --help missing protect")
+                print(out[:500])
+                rc = 1
+            if "--share" in out_l or "share" in out_l:
+                pass_("packed CLI proof --help documents share")
+            else:
+                fail_("packed CLI proof --help missing share")
+                print(out[:500])
+                rc = 1
         else:
             fail_("packed CLI proof --help")
             print(out[:500])
@@ -156,6 +174,20 @@ def main():
                 fail_("packed CLI " + cmd + " --help")
                 print(cout[:400])
                 rc = 1
+        rot = subprocess.run([node, str(bin_path), "rotation", "--help"], cwd=str(pkg_dir), capture_output=True, text=True)
+        rout = (rot.stdout or "") + (rot.stderr or "")
+        if rot.returncode == 0 or "rotation" in rout.lower():
+            pass_("packed CLI rotation --help")
+            if "status" in rout.lower():
+                pass_("packed CLI rotation --help documents status")
+            else:
+                fail_("packed CLI rotation --help missing status")
+                print(rout[:400])
+                rc = 1
+        else:
+            fail_("packed CLI rotation --help")
+            print(rout[:400])
+            rc = 1
         vr = subprocess.run([node, str(bin_path), "--version"], cwd=str(pkg_dir), capture_output=True, text=True)
         vout = ((vr.stdout or "") + (vr.stderr or "")).strip()
         if vr.returncode == 0 and ver in vout:
@@ -223,6 +255,20 @@ def main():
                             pass_("registry repository " + repo_url)
                         else:
                             fail_("registry repository unexpected")
+                            rc = 1
+                        eng = rdata.get("engines") or {}
+                        node_eng = str((eng.get("node") if isinstance(eng, dict) else "") or "")
+                        if "20" in node_eng:
+                            pass_("registry engines.node " + node_eng)
+                        else:
+                            fail_("registry engines.node unexpected")
+                            rc = 1
+                        bugs = rdata.get("bugs") or {}
+                        bugs_url = str((bugs.get("url") if isinstance(bugs, dict) else bugs) or "")
+                        if "github.com/neural-llm-io/power-claude/issues" in bugs_url:
+                            pass_("registry bugs URL")
+                        else:
+                            fail_("registry bugs URL unexpected")
                             rc = 1
                         dist = rdata.get("dist") or {}
                         tb = str(dist.get("tarball") or "")
