@@ -207,6 +207,24 @@ def main():
             elif mismatched:
                 fail_("packed bin sha256 mismatch: " + ",".join(mismatched))
                 rc = 1
+            files_field = meta.get("files") or []
+            if isinstance(files_field, list) and files_field:
+                missing_ents = []
+                for ent in files_field:
+                    rel = str(ent).rstrip("/")
+                    if not rel:
+                        continue
+                    target = pkg_dir / rel
+                    if not target.exists():
+                        missing_ents.append(rel)
+                if not missing_ents:
+                    pass_("packed files[] entries present " + str(len(files_field)))
+                else:
+                    fail_("packed files[] missing " + ",".join(missing_ents[:8]))
+                    rc = 1
+            else:
+                fail_("package.json files[] missing/empty")
+                rc = 1
         else:
             fail_("packed out/extension.js missing/small")
             rc = 1
