@@ -264,8 +264,14 @@ def main():
                 fm_path = pkg_dir / "data" / "brand-stamp" / "feature-matrix.json"
                 fm = json.loads(fm_path.read_text(encoding="utf-8"))
                 feats = fm.get("features") if isinstance(fm, dict) else None
-                if isinstance(fm, dict) and fm.get("schemaVersion") == 1 and isinstance(feats, dict) and "pc-auto-resume" in feats:
-                    pass_("packed feature-matrix has pc-auto-resume")
+                need_feats = (
+                    "pc-auto-resume",
+                    "pc-session-trail-codelens",
+                    "pc-webview-dashboard",
+                    "pc-statusbar-rotation",
+                )
+                if isinstance(fm, dict) and fm.get("schemaVersion") == 1 and isinstance(feats, dict) and all(k in feats for k in need_feats):
+                    pass_("packed feature-matrix core stamps")
                 else:
                     fail_("packed feature-matrix contract unexpected")
                     rc = 1
@@ -278,18 +284,37 @@ def main():
                 pr = json.loads(pr_path.read_text(encoding="utf-8"))
                 plans = pr.get("planPricing") if isinstance(pr, dict) else None
                 api = pr.get("apiPricing") if isinstance(pr, dict) else None
-                if (
+                if not (
                     isinstance(pr, dict)
                     and pr.get("schemaVersion") == 1
                     and isinstance(plans, dict)
                     and all(k in plans for k in ("pro", "max_5x", "max_20x"))
                     and isinstance(api, dict)
-                    and len(api) >= 1
                 ):
-                    pass_("packed prices.default planPricing pro/max")
-                else:
                     fail_("packed prices.default contract unexpected")
                     rc = 1
+                else:
+                    pass_("packed prices.default planPricing pro/max")
+                    pro = plans.get("pro") if isinstance(plans.get("pro"), dict) else {}
+                    if isinstance(pro.get("monthly"), (int, float)) and float(pro["monthly"]) == 20.0:
+                        pass_("packed prices.default pro monthly 20")
+                    else:
+                        fail_("packed prices.default pro monthly unexpected")
+                        rc = 1
+                    need_models = ("claude-opus-4-7", "claude-sonnet-4-6", "claude-haiku-4-5")
+                    bad_m = []
+                    for mk in need_models:
+                        row = api.get(mk)
+                        if not isinstance(row, dict):
+                            bad_m.append(mk + ": missing")
+                            continue
+                        if not isinstance(row.get("input"), (int, float)) or not isinstance(row.get("output"), (int, float)):
+                            bad_m.append(mk + ": rates")
+                    if not bad_m:
+                        pass_("packed prices.default apiPricing models")
+                    else:
+                        fail_("packed prices.default apiPricing " + ",".join(bad_m))
+                        rc = 1
             except Exception as e:
                 fail_("packed prices.default " + type(e).__name__)
                 rc = 1
