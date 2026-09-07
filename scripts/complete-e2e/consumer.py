@@ -179,6 +179,14 @@ def main():
                 fail_("packed CLI " + cmd + " --help")
                 print(cout[:400])
                 rc = 1
+        dr = subprocess.run([node, str(bin_path), "doctor", "--help"], cwd=str(pkg_dir), capture_output=True, text=True)
+        dout = ((dr.stdout or "") + (dr.stderr or "")).lower()
+        if "emergency" in dout:
+            pass_("packed CLI doctor --help mentions emergency")
+        else:
+            fail_("packed CLI doctor --help missing emergency")
+            print(dout[:400])
+            rc = 1
         rot = subprocess.run([node, str(bin_path), "rotation", "--help"], cwd=str(pkg_dir), capture_output=True, text=True)
         rout = (rot.stdout or "") + (rot.stderr or "")
         if rot.returncode == 0 or "rotation" in rout.lower():
@@ -272,6 +280,12 @@ def main():
                         bugs_url = str((bugs.get("url") if isinstance(bugs, dict) else bugs) or "")
                         if "github.com/neural-llm-io/power-claude/issues" in bugs_url:
                             pass_("registry bugs URL")
+                            bugs_email = str((bugs.get("email") if isinstance(bugs, dict) else "") or "")
+                            if "@" in bugs_email and "neural-llm" in bugs_email:
+                                pass_("registry bugs email " + bugs_email)
+                            else:
+                                fail_("registry bugs email unexpected")
+                                rc = 1
                         else:
                             fail_("registry bugs URL unexpected")
                             rc = 1
@@ -505,6 +519,24 @@ def main():
                         else:
                             fail_("open-vsx homepage unexpected")
                             rc = 1
+                        repo_o = str(data.get("repository") or "")
+                        if "github.com/neural-llm-io/power-claude" in repo_o:
+                            pass_("open-vsx repository " + repo_o)
+                        else:
+                            fail_("open-vsx repository unexpected")
+                            rc = 1
+                        bugs_o = str(data.get("bugs") or "")
+                        if "github.com/neural-llm-io/power-claude/issues" in bugs_o:
+                            pass_("open-vsx bugs URL")
+                        else:
+                            fail_("open-vsx bugs URL unexpected")
+                            rc = 1
+                        ts = str(data.get("timestamp") or "")
+                        if "T" in ts and len(ts) >= 10:
+                            pass_("open-vsx timestamp " + ts[:10])
+                        else:
+                            fail_("open-vsx timestamp unexpected")
+                            rc = 1
                         dl = ((data.get("files") or {}).get("download"))
                         if not dl:
                             fail_("open-vsx missing download")
@@ -583,6 +615,16 @@ def main():
                             pass_("pricing page links product")
                         else:
                             fail_("pricing page missing /power-claude link")
+                            rc = 1
+                        if "marketplace.visualstudio.com/items?itemName=neural-llm.power-claude" in body:
+                            pass_("pricing page links marketplace")
+                        else:
+                            fail_("pricing page missing marketplace link")
+                            rc = 1
+                        if "open-vsx.org" in body:
+                            pass_("pricing page links open-vsx")
+                        else:
+                            fail_("pricing page missing open-vsx link")
                             rc = 1
             except Exception as e:
                 fail_(label + " " + type(e).__name__)
