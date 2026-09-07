@@ -134,6 +134,12 @@ def main():
         else:
             fail_("packed description missing value prop")
             rc = 1
+        pkw = meta.get("keywords") or []
+        if isinstance(pkw, list) and "claude-code" in pkw and "vscode-extension" in pkw:
+            pass_("packed keywords claude-code+vscode-extension")
+        else:
+            fail_("packed keywords missing claude-code/vscode-extension")
+            rc = 1
         if not bin_rel:
             fail_("package.json missing bin")
             return 1
@@ -234,6 +240,14 @@ def main():
             fail_("packed CLI resume --help")
             print(rout2[:400])
             rc = 1
+        eon = subprocess.run([node, str(bin_path), "emergency-on", "--help"], cwd=str(pkg_dir), capture_output=True, text=True)
+        eout = (eon.stdout or "") + (eon.stderr or "")
+        if eon.returncode == 0 or "emergency" in eout.lower() or "resume" in eout.lower():
+            pass_("packed CLI emergency-on --help")
+        else:
+            fail_("packed CLI emergency-on --help")
+            print(eout[:400])
+            rc = 1
         vr = subprocess.run([node, str(bin_path), "--version"], cwd=str(pkg_dir), capture_output=True, text=True)
         vout = ((vr.stdout or "") + (vr.stderr or "")).strip()
         if vr.returncode == 0 and ver in vout:
@@ -318,6 +332,18 @@ def main():
                                 pass_("registry bugs email " + bugs_email)
                             else:
                                 fail_("registry bugs email unexpected")
+                                rc = 1
+                            rdesc = str(rdata.get("description") or "")
+                            if "Claude" in rdesc and ("Save" in rdesc or "$" in rdesc):
+                                pass_("registry description value prop")
+                            else:
+                                fail_("registry description missing value prop")
+                                rc = 1
+                            rkw = rdata.get("keywords") or []
+                            if isinstance(rkw, list) and "claude-code" in rkw and "vscode-extension" in rkw:
+                                pass_("registry keywords claude-code+vscode-extension")
+                            else:
+                                fail_("registry keywords missing claude-code/vscode-extension")
                                 rc = 1
                         else:
                             fail_("registry bugs URL unexpected")
