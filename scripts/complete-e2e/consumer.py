@@ -301,6 +301,23 @@ def main():
                     else:
                         fail_("packed prices.default pro monthly unexpected")
                         rc = 1
+                    if isinstance(pro.get("yearly"), (int, float)) and float(pro["yearly"]) == 200.0:
+                        pass_("packed prices.default pro yearly 200")
+                    else:
+                        fail_("packed prices.default pro yearly unexpected")
+                        rc = 1
+                    m5 = plans.get("max_5x") if isinstance(plans.get("max_5x"), dict) else {}
+                    if isinstance(m5.get("monthly"), (int, float)) and float(m5["monthly"]) == 100.0:
+                        pass_("packed prices.default max_5x monthly 100")
+                    else:
+                        fail_("packed prices.default max_5x monthly unexpected")
+                        rc = 1
+                    m20 = plans.get("max_20x") if isinstance(plans.get("max_20x"), dict) else {}
+                    if isinstance(m20.get("monthly"), (int, float)) and float(m20["monthly"]) == 200.0:
+                        pass_("packed prices.default max_20x monthly 200")
+                    else:
+                        fail_("packed prices.default max_20x monthly unexpected")
+                        rc = 1
                     need_models = ("claude-opus-4-7", "claude-sonnet-4-6", "claude-haiku-4-5")
                     bad_m = []
                     for mk in need_models:
