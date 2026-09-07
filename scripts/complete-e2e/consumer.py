@@ -220,6 +220,20 @@ def main():
             fail_("packed CLI rotation --help")
             print(rout[:400])
             rc = 1
+        rr = subprocess.run([node, str(bin_path), "resume", "--help"], cwd=str(pkg_dir), capture_output=True, text=True)
+        rout2 = (rr.stdout or "") + (rr.stderr or "")
+        if rr.returncode == 0 or "resume" in rout2.lower() or "emergency" in rout2.lower():
+            pass_("packed CLI resume --help")
+            if "emergency" in rout2.lower():
+                pass_("packed CLI resume --help mentions emergency")
+            else:
+                fail_("packed CLI resume --help missing emergency")
+                print(rout2[:400])
+                rc = 1
+        else:
+            fail_("packed CLI resume --help")
+            print(rout2[:400])
+            rc = 1
         vr = subprocess.run([node, str(bin_path), "--version"], cwd=str(pkg_dir), capture_output=True, text=True)
         vout = ((vr.stdout or "") + (vr.stderr or "")).strip()
         if vr.returncode == 0 and ver in vout:
@@ -625,6 +639,17 @@ def main():
                     else:
                         fail_(label + " body missing Power Claude")
                         rc = 1
+                    if label == "marketplace listing":
+                        if "neural-llm.com/pricing" in body or "/pricing" in body:
+                            pass_("marketplace listing links pricing")
+                        else:
+                            fail_("marketplace listing missing pricing link")
+                            rc = 1
+                        if "neural-llm.com/power-claude" in body:
+                            pass_("marketplace listing links product")
+                        else:
+                            fail_("marketplace listing missing product link")
+                            rc = 1
                     if label == "product site":
                         if "/pricing" in body:
                             pass_("product site links pricing")
