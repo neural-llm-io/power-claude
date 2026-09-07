@@ -169,6 +169,44 @@ def main():
             else:
                 fail_("packed extension.js.sha256 missing")
                 rc = 1
+            uh = pkg_dir / "out" / "uninstall-hook.js"
+            if uh.is_file() and uh.stat().st_size > 100:
+                pass_("packed out/uninstall-hook.js " + str(uh.stat().st_size))
+            else:
+                fail_("packed out/uninstall-hook.js missing/small")
+                rc = 1
+            bin_dir = pkg_dir / "bin"
+            bin_js = sorted(bin_dir.glob("*.js")) if bin_dir.is_dir() else []
+            # ignore accidental *.js.sha256 mistaken as .js — glob *.js won't include .sha256
+            expected = {
+                "power-claude-cli.js",
+                "power-claude-proxy.js",
+                "power-claude-rotator.js",
+                "power-claude-stop-classifier.js",
+            }
+            names = {x.name for x in bin_js}
+            if expected.issubset(names):
+                pass_("packed bin ships cli/proxy/rotator/stop-classifier")
+            else:
+                fail_("packed bin missing " + ",".join(sorted(expected - names)))
+                rc = 1
+            mismatched = []
+            for js in bin_js:
+                if js.name not in expected:
+                    continue
+                side = Path(str(js) + ".sha256")
+                if not side.is_file():
+                    mismatched.append(js.name + ": missing sha256")
+                    continue
+                listed_b = side.read_text(encoding="utf-8", errors="replace").strip().split()[0]
+                computed_b = hashlib.sha256(js.read_bytes()).hexdigest()
+                if not (re.fullmatch(r"[a-fA-F0-9]{64}", listed_b) and listed_b.lower() == computed_b.lower()):
+                    mismatched.append(js.name)
+            if not mismatched and expected.issubset(names):
+                pass_("packed bin sha256 matches")
+            elif mismatched:
+                fail_("packed bin sha256 mismatch: " + ",".join(mismatched))
+                rc = 1
         else:
             fail_("packed out/extension.js missing/small")
             rc = 1
