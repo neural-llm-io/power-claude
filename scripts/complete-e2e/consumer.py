@@ -35,6 +35,11 @@ def main():
     else:
         fail_("README missing pc proof")
         rc = 1
+    if "pc doctor" in readme:
+        pass_("README documents pc doctor")
+    else:
+        fail_("README missing pc doctor")
+        rc = 1
     if "open-vsx.org/extension/neural-llm/power-claude" in readme or "Open VSX" in readme:
         pass_("README documents Open VSX")
     else:
@@ -138,6 +143,23 @@ def main():
             fail_("packed CLI --version")
             print(vout[:300])
             rc = 1
+        # Dual-bin consumer surface: power-claude alias must execute like pc
+        if isinstance(bin_field, dict) and bin_field.get("power-claude"):
+            alias_rel = bin_field["power-claude"]
+            alias_path = pkg_dir / alias_rel
+            if alias_path.is_file():
+                pass_("packed power-claude bin path present")
+                ar = subprocess.run([node, str(alias_path), "--version"], cwd=str(pkg_dir), capture_output=True, text=True)
+                aout = ((ar.stdout or "") + (ar.stderr or "")).strip()
+                if ar.returncode == 0 and ver in aout:
+                    pass_("packed power-claude --version matches " + ver)
+                else:
+                    fail_("packed power-claude --version")
+                    print(aout[:300])
+                    rc = 1
+            else:
+                fail_("packed power-claude bin path missing")
+                rc = 1
         # npm registry metadata identity (consumer install surface)
         try:
             reg_url = "https://registry.npmjs.org/power-claude/latest"
