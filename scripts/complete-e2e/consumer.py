@@ -156,6 +156,19 @@ def main():
         extjs = pkg_dir / "out" / "extension.js"
         if extjs.is_file() and extjs.stat().st_size > 100000:
             pass_("packed out/extension.js " + str(extjs.stat().st_size))
+            sha_path = pkg_dir / "out" / "extension.js.sha256"
+            if sha_path.is_file():
+                listed = sha_path.read_text(encoding="utf-8", errors="replace").strip().split()[0]
+                computed = hashlib.sha256(extjs.read_bytes()).hexdigest()
+                if re.fullmatch(r"[a-fA-F0-9]{64}", listed) and listed.lower() == computed.lower():
+                    pass_("packed extension.js sha256 matches")
+                else:
+                    fail_("packed extension.js sha256 mismatch")
+                    print("listed", listed[:20], "computed", computed[:20])
+                    rc = 1
+            else:
+                fail_("packed extension.js.sha256 missing")
+                rc = 1
         else:
             fail_("packed out/extension.js missing/small")
             rc = 1
