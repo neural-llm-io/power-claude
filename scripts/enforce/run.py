@@ -38,7 +38,7 @@ def main():
     else:
         fail_("bytecode present"); rc = 1
     print("Layer 3 -- required prove entrypoints")
-    required = ["scripts/verify/run.sh", "scripts/verify/run.py", "scripts/complete-e2e/consumer.py", "scripts/tidy/run.sh", "scripts/tidy/run.py", "scripts/enforce/run.sh", "scripts/enforce/run.py", "scripts/release-ready/run.sh", "scripts/release-ready/run.py"]
+    required = ["scripts/verify/run.sh", "scripts/verify/run.py", "scripts/complete-e2e/consumer.py", "scripts/complete-e2e/run.py", "scripts/complete-e2e/run.sh", "scripts/tidy/run.sh", "scripts/tidy/run.py", "scripts/enforce/run.sh", "scripts/enforce/run.py", "scripts/release-ready/run.sh", "scripts/release-ready/run.py"]
     for rel in required:
         if (ROOT / rel).is_file(): pass_("present " + rel)
         else: fail_("missing " + rel); rc = 1
