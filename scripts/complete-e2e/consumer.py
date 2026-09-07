@@ -55,6 +55,11 @@ def main():
     else:
         fail_("README missing issues URL")
         rc = 1
+    if "pc rotation" in readme:
+        pass_("README documents pc rotation")
+    else:
+        fail_("README missing pc rotation")
+        rc = 1
     if "open-vsx.org/extension/neural-llm/power-claude" in readme or "Open VSX" in readme:
         pass_("README documents Open VSX")
     else:
@@ -562,6 +567,16 @@ def main():
                             pass_("product site links pricing")
                         else:
                             fail_("product site missing /pricing link")
+                            rc = 1
+                        if "marketplace.visualstudio.com/items?itemName=neural-llm.power-claude" in body:
+                            pass_("product site links marketplace")
+                        else:
+                            fail_("product site missing marketplace link")
+                            rc = 1
+                        if "open-vsx.org" in body:
+                            pass_("product site links open-vsx")
+                        else:
+                            fail_("product site missing open-vsx link")
                             rc = 1
                     if label == "pricing page":
                         if "/power-claude" in body:
