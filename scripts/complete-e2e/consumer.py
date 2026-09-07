@@ -60,6 +60,11 @@ def main():
     else:
         fail_("README missing pc rotation")
         rc = 1
+    if "Setup Guide" in readme:
+        pass_("README documents Setup Guide")
+    else:
+        fail_("README missing Setup Guide")
+        rc = 1
     if "open-vsx.org/extension/neural-llm/power-claude" in readme or "Open VSX" in readme:
         pass_("README documents Open VSX")
     else:
@@ -139,6 +144,18 @@ def main():
             pass_("packed keywords claude-code+vscode-extension")
         else:
             fail_("packed keywords missing claude-code/vscode-extension")
+            rc = 1
+        icon = pkg_dir / "media" / "icon.png"
+        if icon.is_file() and icon.stat().st_size > 1000:
+            pass_("packed media/icon.png " + str(icon.stat().st_size))
+        else:
+            fail_("packed media/icon.png missing/small")
+            rc = 1
+        extjs = pkg_dir / "out" / "extension.js"
+        if extjs.is_file() and extjs.stat().st_size > 100000:
+            pass_("packed out/extension.js " + str(extjs.stat().st_size))
+        else:
+            fail_("packed out/extension.js missing/small")
             rc = 1
         if not bin_rel:
             fail_("package.json missing bin")
@@ -247,6 +264,20 @@ def main():
         else:
             fail_("packed CLI emergency-on --help")
             print(eout[:400])
+            rc = 1
+        ob = subprocess.run([node, str(bin_path), "onboard", "--help"], cwd=str(pkg_dir), capture_output=True, text=True)
+        oout = (ob.stdout or "") + (ob.stderr or "")
+        if ob.returncode == 0 or "onboard" in oout.lower():
+            pass_("packed CLI onboard --help")
+            if "setup" in oout.lower() or "decide" in oout.lower() or "consult" in oout.lower():
+                pass_("packed CLI onboard --help documents setup")
+            else:
+                fail_("packed CLI onboard --help missing setup cues")
+                print(oout[:400])
+                rc = 1
+        else:
+            fail_("packed CLI onboard --help")
+            print(oout[:400])
             rc = 1
         vr = subprocess.run([node, str(bin_path), "--version"], cwd=str(pkg_dir), capture_output=True, text=True)
         vout = ((vr.stdout or "") + (vr.stderr or "")).strip()
