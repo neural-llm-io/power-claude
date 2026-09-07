@@ -29,6 +29,7 @@ def run_gate(label: str, script: str, extra_args: list[str] | None = None) -> bo
         return False
     env = os.environ.copy()
     env["PYTHONDONTWRITEBYTECODE"] = "1"
+    env.pop("PC_SKIP_NPM", None)
     cmd = ["bash", str(path)] + (extra_args or [])
     r = subprocess.run(cmd, cwd=str(ROOT), env=env)
     if r.returncode == 0:

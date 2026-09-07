@@ -225,6 +225,12 @@ def main():
             else:
                 fail_("package.json files[] missing/empty")
                 rc = 1
+            eng = pkg_dir / "data" / "runtime" / "engine.enc"
+            if eng.is_file() and eng.stat().st_size > 10000:
+                pass_("packed engine.enc " + str(eng.stat().st_size))
+            else:
+                fail_("packed engine.enc missing/small")
+                rc = 1
         else:
             fail_("packed out/extension.js missing/small")
             rc = 1
