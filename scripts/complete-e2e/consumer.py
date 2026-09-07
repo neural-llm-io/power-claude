@@ -145,9 +145,11 @@ def main():
         else:
             fail_("packed keywords missing claude-code/vscode-extension")
             rc = 1
+        packed_icon_size = 0
         icon = pkg_dir / "media" / "icon.png"
         if icon.is_file() and icon.stat().st_size > 1000:
-            pass_("packed media/icon.png " + str(icon.stat().st_size))
+            packed_icon_size = icon.stat().st_size
+            pass_("packed media/icon.png " + str(packed_icon_size))
         else:
             fail_("packed media/icon.png missing/small")
             rc = 1
@@ -278,6 +280,21 @@ def main():
         else:
             fail_("packed CLI onboard --help")
             print(oout[:400])
+            rc = 1
+        rec = subprocess.run([node, str(bin_path), "recommend", "--help"], cwd=str(pkg_dir), capture_output=True, text=True)
+        rec_out = (rec.stdout or "") + (rec.stderr or "")
+        if rec.returncode == 0 or "recommend" in rec_out.lower():
+            pass_("packed CLI recommend --help")
+            rl = rec_out.lower()
+            if "consult" in rl or "tier" in rl or "goal" in rl:
+                pass_("packed CLI recommend --help documents consult")
+            else:
+                fail_("packed CLI recommend --help missing consult cues")
+                print(rec_out[:400])
+                rc = 1
+        else:
+            fail_("packed CLI recommend --help")
+            print(rec_out[:400])
             rc = 1
         vr = subprocess.run([node, str(bin_path), "--version"], cwd=str(pkg_dir), capture_output=True, text=True)
         vout = ((vr.stdout or "") + (vr.stderr or "")).strip()
@@ -672,6 +689,22 @@ def main():
                                 except Exception as ae:
                                     fail_("open-vsx " + asset + " HEAD " + type(ae).__name__)
                                     print(str(ae)[:300])
+                                    rc = 1
+                            icon_url = (data.get("files") or {}).get("icon")
+                            if icon_url and packed_icon_size:
+                                try:
+                                    ireq = urllib.request.Request(icon_url, method="HEAD", headers={"User-Agent": "power-claude-consumer-e2e"})
+                                    with urllib.request.urlopen(ireq, timeout=45) as iresp:
+                                        icode = getattr(iresp, "status", 200)
+                                        ilen = iresp.headers.get("Content-Length")
+                                    if 200 <= int(icode) < 400 and ilen and int(ilen) == packed_icon_size:
+                                        pass_("packed icon size matches open-vsx " + str(packed_icon_size))
+                                    else:
+                                        fail_("packed icon size != open-vsx (" + str(packed_icon_size) + " vs " + str(ilen) + ")")
+                                        rc = 1
+                                except Exception as ie:
+                                    fail_("packed/open-vsx icon compare " + type(ie).__name__)
+                                    print(str(ie)[:300])
                                     rc = 1
                             sha_url = (data.get("files") or {}).get("sha256")
                             if sha_url:
