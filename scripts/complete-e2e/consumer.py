@@ -332,6 +332,24 @@ def main():
                     else:
                         fail_("packed prices.default apiPricing " + ",".join(bad_m))
                         rc = 1
+                    cache_fields = ("cacheWrite5m", "cacheWrite1h", "cacheRead")
+                    bad_cache = []
+                    for mk in need_models:
+                        row = api.get(mk)
+                        if not isinstance(row, dict):
+                            bad_cache.append(mk + ": missing")
+                            continue
+                        missing_cache = [
+                            field for field in cache_fields
+                            if not isinstance(row.get(field), (int, float))
+                        ]
+                        if missing_cache:
+                            bad_cache.append(mk + ": " + ",".join(missing_cache))
+                    if not bad_cache:
+                        pass_("packed prices.default apiPricing cache rates")
+                    else:
+                        fail_("packed prices.default apiPricing cache rates " + ",".join(bad_cache))
+                        rc = 1
                     claim_mapping = pr.get("claimMapping")
                     need_claims = {
                         "five_hour": "fiveHour",
