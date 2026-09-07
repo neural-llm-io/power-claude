@@ -111,6 +111,12 @@ def main():
         out = (proof_r.stdout or "") + (proof_r.stderr or "")
         if proof_r.returncode == 0 or "proof" in out.lower():
             pass_("packed CLI proof --help")
+            if "--recover" in out.lower() or "recover" in out.lower():
+                pass_("packed CLI proof --help documents recover")
+            else:
+                fail_("packed CLI proof --help missing recover")
+                print(out[:500])
+                rc = 1
         else:
             fail_("packed CLI proof --help")
             print(out[:500])
