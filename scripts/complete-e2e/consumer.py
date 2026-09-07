@@ -40,6 +40,16 @@ def main():
     else:
         fail_("README missing pc doctor")
         rc = 1
+    if "marketplace.visualstudio.com/items?itemName=neural-llm.power-claude" in readme:
+        pass_("README documents marketplace listing URL")
+    else:
+        fail_("README missing marketplace listing URL")
+        rc = 1
+    if "pc emergency" in readme:
+        pass_("README documents pc emergency")
+    else:
+        fail_("README missing pc emergency")
+        rc = 1
     if "open-vsx.org/extension/neural-llm/power-claude" in readme or "Open VSX" in readme:
         pass_("README documents Open VSX")
     else:
@@ -90,6 +100,17 @@ def main():
         else:
             fail_("package.json version missing/invalid")
             return 1
+        packed_lic = pkg_dir / "LICENSE"
+        if packed_lic.is_file():
+            pl = packed_lic.read_text(encoding="utf-8", errors="replace")
+            if len(pl.strip()) > 100 and "Neural-LLM" in pl:
+                pass_("packed LICENSE present with Neural-LLM")
+            else:
+                fail_("packed LICENSE missing Neural-LLM")
+                rc = 1
+        else:
+            fail_("packed LICENSE missing")
+            rc = 1
         if not bin_rel:
             fail_("package.json missing bin")
             return 1
@@ -126,7 +147,7 @@ def main():
             fail_("packed CLI proof --help")
             print(out[:500])
             rc = 1
-        for cmd in ("halt", "doctor", "emergency-off"):
+        for cmd in ("halt", "doctor", "emergency-off", "emergency"):
             cr = subprocess.run([node, str(bin_path), cmd, "--help"], cwd=str(pkg_dir), capture_output=True, text=True)
             cout = (cr.stdout or "") + (cr.stderr or "")
             if cr.returncode == 0 or cmd in cout.lower():
@@ -186,6 +207,23 @@ def main():
                         rc = 1
                     else:
                         pass_("registry metadata name/version/bin " + rver)
+
+                        home = str(rdata.get("homepage") or "")
+                        if "neural-llm.com/power-claude" in home:
+                            pass_("registry homepage " + home)
+                        else:
+                            fail_("registry homepage unexpected")
+                            rc = 1
+                        repo = rdata.get("repository") or {}
+                        if isinstance(repo, dict):
+                            repo_url = str(repo.get("url") or "")
+                        else:
+                            repo_url = str(repo)
+                        if "github.com/neural-llm-io/power-claude" in repo_url:
+                            pass_("registry repository " + repo_url)
+                        else:
+                            fail_("registry repository unexpected")
+                            rc = 1
                         dist = rdata.get("dist") or {}
                         tb = str(dist.get("tarball") or "")
                         want = "power-claude-" + rver + ".tgz"
