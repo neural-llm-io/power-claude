@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Consumer verify floor for public power-claude."""
 from __future__ import annotations
-import os, subprocess, sys
+import subprocess, sys
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 def pass_(m): print("  PASS  " + m)
@@ -23,24 +23,13 @@ def main():
     else:
         fail_("missing media/")
         rc = 1
-    print("Layer 2 -- README media refs")
-    media_py = ROOT / "scripts/complete-e2e/check_readme_media.py"
-    r = subprocess.run([sys.executable, str(media_py)], cwd=str(ROOT))
+    print("Layer 2 -- complete-e2e")
+    e2e = ROOT / "scripts/complete-e2e/run.py"
+    r = subprocess.run([sys.executable, str(e2e)], cwd=str(ROOT))
     if r.returncode == 0:
-        pass_("readme media refs")
+        pass_("complete-e2e")
     else:
-        fail_("readme media refs")
-        rc = 1
-    print("Layer 3 -- consumer complete-e2e")
-    consumer = ROOT / "scripts/complete-e2e/consumer.py"
-    env = os.environ.copy()
-    if os.environ.get("PC_SKIP_NPM") == "1":
-        env["PC_SKIP_NPM"] = "1"
-    r = subprocess.run([sys.executable, str(consumer)], cwd=str(ROOT), env=env)
-    if r.returncode == 0:
-        pass_("consumer complete-e2e")
-    else:
-        fail_("consumer complete-e2e")
+        fail_("complete-e2e")
         rc = 1
     print("----------------------------------------")
     if rc == 0:
