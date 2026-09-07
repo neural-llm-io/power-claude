@@ -332,6 +332,42 @@ def main():
                     else:
                         fail_("packed prices.default apiPricing " + ",".join(bad_m))
                         rc = 1
+                    claim_mapping = pr.get("claimMapping")
+                    need_claims = {
+                        "five_hour": "fiveHour",
+                        "daily": "daily",
+                        "weekly": "weekly",
+                        "monthly": "monthly",
+                    }
+                    if isinstance(claim_mapping, dict) and all(
+                        claim_mapping.get(period) == claim for period, claim in need_claims.items()
+                    ):
+                        pass_("packed prices.default claimMapping periods")
+                    else:
+                        fail_("packed prices.default claimMapping periods unexpected")
+                        rc = 1
+                    fallbacks = pr.get("communityFallbacks")
+                    pro_fallback = fallbacks.get("pro") if isinstance(fallbacks, dict) else None
+                    max_5x_fallback = fallbacks.get("max_5x") if isinstance(fallbacks, dict) else None
+                    max_20x_fallback = fallbacks.get("max_20x") if isinstance(fallbacks, dict) else None
+                    fallback_ok = (
+                        all(isinstance(row, dict) for row in (pro_fallback, max_5x_fallback, max_20x_fallback))
+                        and all(
+                            isinstance(pro_fallback.get(rate), int)
+                            and isinstance(max_5x_fallback.get(rate), int)
+                            and isinstance(max_20x_fallback.get(rate), int)
+                            for rate in ("weeklyInputTokens", "weeklyOutputTokens")
+                        )
+                        and max_5x_fallback["weeklyInputTokens"] == 5 * pro_fallback["weeklyInputTokens"]
+                        and max_5x_fallback["weeklyOutputTokens"] == 5 * pro_fallback["weeklyOutputTokens"]
+                        and max_20x_fallback["weeklyInputTokens"] == 20 * pro_fallback["weeklyInputTokens"]
+                        and max_20x_fallback["weeklyOutputTokens"] == 20 * pro_fallback["weeklyOutputTokens"]
+                    )
+                    if fallback_ok:
+                        pass_("packed prices.default communityFallbacks 5x/20x")
+                    else:
+                        fail_("packed prices.default communityFallbacks 5x/20x unexpected")
+                        rc = 1
             except Exception as e:
                 fail_("packed prices.default " + type(e).__name__)
                 rc = 1
