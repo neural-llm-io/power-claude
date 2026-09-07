@@ -95,6 +95,13 @@ def main():
             help_r = subprocess.run([node, str(bin_path), "help"], cwd=str(pkg_dir), capture_output=True, text=True)
         if help_r.returncode == 0:
             pass_("packed CLI help")
+            help_out = ((help_r.stdout or "") + (help_r.stderr or "")).lower()
+            missing_cmds = [c for c in ("proof", "halt", "doctor", "emergency-off") if c not in help_out]
+            if not missing_cmds:
+                pass_("packed CLI help lists consumer commands")
+            else:
+                fail_("packed CLI help missing " + ",".join(missing_cmds))
+                rc = 1
         else:
             fail_("packed CLI help")
             print((help_r.stderr or help_r.stdout)[:500])
