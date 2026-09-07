@@ -245,6 +245,34 @@ def main():
                 else:
                     fail_("packed " + rel + " missing/small")
                     rc = 1
+            mkt = pkg_dir / "media" / "marketplace"
+            mkt_files = [f for f in mkt.rglob("*") if f.is_file() and f.name != ".gitkeep"] if mkt.is_dir() else []
+            if len(mkt_files) >= 10:
+                pass_("packed media/marketplace assets " + str(len(mkt_files)))
+            else:
+                fail_("packed media/marketplace assets sparse")
+                rc = 1
+            wt = pkg_dir / "media" / "walkthrough"
+            need_wt = ["install.md", "add-account.md", "rotate.md", "optimize.md"]
+            if wt.is_dir() and all((wt / n).is_file() for n in need_wt):
+                pass_("packed media/walkthrough core guides")
+            else:
+                fail_("packed media/walkthrough missing core guides")
+                rc = 1
+            for jrel, label in (
+                ("data/brand-stamp/feature-matrix.json", "feature-matrix.json"),
+                ("data/llm-usage/prices.default.json", "prices.default.json"),
+                ("data/vendor/jq/manifest.json", "jq manifest.json"),
+            ):
+                jp = pkg_dir / jrel
+                try:
+                    if not jp.is_file() or jp.stat().st_size < 50:
+                        raise ValueError("missing/small")
+                    json.loads(jp.read_text(encoding="utf-8"))
+                    pass_("packed " + label + " json")
+                except Exception:
+                    fail_("packed " + label + " json invalid")
+                    rc = 1
         else:
             fail_("packed out/extension.js missing/small")
             rc = 1
