@@ -50,7 +50,29 @@ def main():
         with gi_path.open("a", encoding="utf-8") as f: f.write("\\n# Python bytecode\\n__pycache__/\\n*.pyc\\n")
         info_("appended bytecode rules to .gitignore")
     else: fail_(".gitignore missing bytecode rules"); rc = 1
-    print("Layer 5 -- tidy --full after enforce")
+    print("Layer 5 -- policy scan (no ALLOW_UNPROVEN / fake CERTIFIED)")
+    banned = []
+    for path in sorted(scripts_root.rglob("*")):
+        if not path.is_file():
+            continue
+        if path.suffix not in {".py", ".sh", ".md", ".yml", ".yaml"}:
+            continue
+        text = path.read_text(encoding="utf-8", errors="replace")
+        rel = str(path.relative_to(ROOT))
+        allow_a = "ALLOW_UNPROVEN" + "=1"
+        allow_b = "ALLOW_UNPROVEN" + " = 1"
+        if allow_a in text or allow_b in text:
+            banned.append(rel + ": " + allow_a)
+        cert_a = "CERTIFIED" + "=1"
+        cert_b = "certified" + " = true"
+        if cert_a in text or cert_b in text.lower():
+            banned.append(rel + ": fake CERTIFIED enable")
+    if not banned:
+        pass_("no ALLOW_UNPROVEN/fake CERTIFIED enables in scripts")
+    else:
+        fail_("policy violations: " + "; ".join(banned[:5])); rc = 1
+    print("Layer 6 -- tidy --full after enforce")
+
     tidy = ROOT / "scripts/tidy/run.sh"
     if tidy.is_file():
         r = subprocess.run(["bash", str(tidy)], cwd=str(ROOT))
