@@ -304,18 +304,26 @@ def main():
                     rc = 1
                 else:
                     pass_("packed jq manifest linux-amd64 entry")
-                    out_name = str(linux.get("out") or "")
-                    want = str(linux.get("sha256") or "")
-                    bin_file = pkg_dir / "data" / "vendor" / "jq" / out_name
-                    if bin_file.is_file() and re.fullmatch(r"[a-fA-F0-9]{64}", want):
+                    want_plats = ("linux-amd64", "linux-arm64", "darwin-amd64", "darwin-arm64")
+                    bad = []
+                    for plat in want_plats:
+                        meta = bins.get(plat) if isinstance(bins, dict) else None
+                        if not isinstance(meta, dict):
+                            bad.append(plat + ": missing")
+                            continue
+                        out_name = str(meta.get("out") or "")
+                        want = str(meta.get("sha256") or "")
+                        bin_file = pkg_dir / "data" / "vendor" / "jq" / out_name
+                        if not (bin_file.is_file() and re.fullmatch(r"[a-fA-F0-9]{64}", want)):
+                            bad.append(plat + ": binary/sha missing")
+                            continue
                         got = hashlib.sha256(bin_file.read_bytes()).hexdigest()
-                        if got.lower() == want.lower():
-                            pass_("packed jq linux-amd64 sha256 matches")
-                        else:
-                            fail_("packed jq linux-amd64 sha256 mismatch")
-                            rc = 1
+                        if got.lower() != want.lower():
+                            bad.append(plat + ": mismatch")
+                    if not bad:
+                        pass_("packed jq all platforms sha256 match")
                     else:
-                        fail_("packed jq linux-amd64 binary/sha missing")
+                        fail_("packed jq platform sha: " + ",".join(bad))
                         rc = 1
             except Exception as e:
                 fail_("packed jq manifest " + type(e).__name__)
