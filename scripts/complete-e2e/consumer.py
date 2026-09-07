@@ -231,6 +231,20 @@ def main():
             else:
                 fail_("packed engine.enc missing/small")
                 rc = 1
+            brand_assets = [
+                ("media/icon.svg", 500),
+                ("media/icon-activity.svg", 500),
+                ("media/brand/power-claude/badge.svg", 200),
+                ("media/brand/power-claude/badge.css", 200),
+                ("media/brand/power-claude/badge-template.html", 100),
+            ]
+            for rel, min_sz in brand_assets:
+                bp = pkg_dir / rel
+                if bp.is_file() and bp.stat().st_size >= min_sz:
+                    pass_("packed " + rel + " " + str(bp.stat().st_size))
+                else:
+                    fail_("packed " + rel + " missing/small")
+                    rc = 1
         else:
             fail_("packed out/extension.js missing/small")
             rc = 1
