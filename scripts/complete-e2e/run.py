@@ -32,4 +32,14 @@ def main() -> int:
     return rc
 
 if __name__ == "__main__":
+    # CE2E_HELP_FASTPATH: harness CLI probes must not run full consumer prove
+    import sys as _sys
+    _a = set(_sys.argv[1:])
+    if _a & {"-h", "--help"}:
+        print("power-claude-complete-e2e: consumer prove/verify entry — use without flags to run live proofs")
+        raise SystemExit(0)
+    if _a & {"-V", "--version"}:
+        print("power-claude-complete-e2e 1.0.0")
+        raise SystemExit(0)
+
     raise SystemExit(main())
