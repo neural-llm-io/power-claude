@@ -27,8 +27,7 @@ def main() -> int:
         print("list-surfaces: project-dir not a directory", file=sys.stderr)
         return 2
     payload = {"schema": "hurc-complete-e2e-runtime-surfaces/v1", "surfaces": _surfaces(root)}
-    sys.stdout.write(json.dumps(payload, indent=2) + "
-")
+    sys.stdout.write(json.dumps(payload, indent=2) + "\n")
     return 0
 
 
