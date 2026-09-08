@@ -1,0 +1,13 @@
+{
+  "schema": "hurc-complete-e2e-runtime/v1",
+  "description": "CLI adapter so power-claude consumer compile is not an empty universe.",
+  "adapters": [
+    {
+      "id": "power-claude-consumer-cli",
+      "kind": "cli",
+      "surface_kind": "cli",
+      "timeout_sec": 120,
+      "argv": ["python3", "scripts/complete-e2e/list-surfaces.py"]
+    }
+  ]
+}
