@@ -3,8 +3,9 @@
 
 behavior_proven=true ONLY when ok=true after a real consumer execute (not inventory,
 not skip-npm, not tautology). Named behavior.cases map PASS lines from consumer to
-domain outcomes (subprocess CLI help, npm registry metadata, marketplace API,
-marketplace vsix HEAD, open-vsx vsix download HEAD, product/pricing site cross-links).
+domain outcomes (subprocess CLI help, packed dual-bin --version, npm registry
+metadata, marketplace API, marketplace vsix HEAD, open-vsx vsix download HEAD,
+product/pricing site cross-links).
 """
 from __future__ import annotations
 
@@ -27,6 +28,11 @@ CASE_MARKERS: dict[str, tuple[str, ...]] = {
     "packed_cli_help": (
         "PASS  packed CLI help",
         "PASS  packed CLI help lists consumer commands",
+    ),
+    # Dual-bin packed consumer: pc + power-claude --version must both match package version.
+    "packed_dual_bin_version": (
+        "PASS  packed CLI --version matches ",
+        "PASS  packed power-claude --version matches ",
     ),
     "registry_metadata": (
         "PASS  registry metadata name/version/bin",
