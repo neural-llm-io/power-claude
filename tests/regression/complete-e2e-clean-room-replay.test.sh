@@ -96,6 +96,7 @@ for rid in (
     "packed_cli_help",
     "packed_dual_bin_version",
     "packed_artifact_sha256",
+    "packed_registry_integrity",
     "registry_metadata",
     "marketplace_api",
     "marketplace_vsix_download",
