@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Live consumer prove wrapper + fail-closed prove receipt (NDP/hurc contract shape)."""
+"""Live consumer prove wrapper + fail-closed prove receipt (NDP/hurc contract shape).
+
+--receipt runs readme_media + execute-consumer (live consumer domain cases) and emits
+a fail-closed receipt. Richer behavior.cases ids (packed_cli_help, registry_metadata,
+marketplace_api) are required for behavior_proven when prove succeeds.
+"""
 from __future__ import annotations
 
 import json
@@ -14,6 +19,9 @@ HERE = Path(__file__).resolve().parent
 RECEIPT_DIR = HERE / ".receipts"
 RECEIPT_PATH = RECEIPT_DIR / "prove-receipt.json"
 SCHEMA = "hurc-complete-e2e-power-claude-prove/v1"
+
+# Domain cases surfaced by execute-consumer (must appear in prove receipt on success).
+RICH_CASE_IDS = ("packed_cli_help", "registry_metadata", "marketplace_api")
 
 BLOCK_MARKERS = (
     "URLError",
@@ -34,10 +42,9 @@ BLOCK_MARKERS = (
 )
 
 
-def _run_case(case_id: str, script: Path, env: dict[str, str]) -> dict[str, Any]:
+def _run_script(script: Path, extra_argv: list[str], env: dict[str, str]) -> dict[str, Any]:
     if not script.is_file():
         return {
-            "id": case_id,
             "ok": False,
             "detail": f"missing script {script.relative_to(ROOT)}",
             "returncode": 127,
@@ -45,7 +52,7 @@ def _run_case(case_id: str, script: Path, env: dict[str, str]) -> dict[str, Any]
             "stderr": "",
         }
     proc = subprocess.run(
-        [sys.executable, str(script)],
+        [sys.executable, str(script), *extra_argv],
         cwd=str(ROOT),
         env=env,
         capture_output=True,
@@ -54,7 +61,6 @@ def _run_case(case_id: str, script: Path, env: dict[str, str]) -> dict[str, Any]
     out = (proc.stdout or "") + ("\n" + proc.stderr if proc.stderr else "")
     detail = out.strip().splitlines()[-1] if out.strip() else f"exit {proc.returncode}"
     return {
-        "id": case_id,
         "ok": proc.returncode == 0,
         "detail": detail[:500],
         "returncode": proc.returncode,
@@ -63,12 +69,8 @@ def _run_case(case_id: str, script: Path, env: dict[str, str]) -> dict[str, Any]
     }
 
 
-def _looks_blocked(cases: list[dict[str, Any]]) -> bool:
-    blob = "\n".join(
-        (c.get("stdout") or "") + "\n" + (c.get("stderr") or "") + "\n" + (c.get("detail") or "")
-        for c in cases
-        if not c.get("ok")
-    )
+def _looks_blocked(blobs: list[str]) -> bool:
+    blob = "\n".join(blobs)
     low = blob.lower()
     for marker in BLOCK_MARKERS:
         if marker.lower() in low:
@@ -76,13 +78,93 @@ def _looks_blocked(cases: list[dict[str, Any]]) -> bool:
     return False
 
 
-def _build_receipt(cases_raw: list[dict[str, Any]], skipped_npm: bool) -> dict[str, Any]:
-    cases = [{"id": c["id"], "ok": bool(c["ok"]), "detail": c["detail"]} for c in cases_raw]
+def _parse_execute_receipt(stdout: str) -> dict[str, Any] | None:
+    text = (stdout or "").strip()
+    if not text:
+        return None
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        # Best-effort: last JSON object in stdout
+        start = text.rfind("{")
+        if start < 0:
+            return None
+        try:
+            return json.loads(text[start:])
+        except json.JSONDecodeError:
+            return None
+
+
+def _build_receipt(
+    *,
+    readme: dict[str, Any],
+    execute: dict[str, Any],
+    execute_receipt: dict[str, Any] | None,
+    skipped_npm: bool,
+) -> dict[str, Any]:
+    cases: list[dict[str, Any]] = [
+        {
+            "id": "readme_media",
+            "ok": bool(readme.get("ok")),
+            "detail": readme.get("detail") or "",
+        },
+        {
+            "id": "consumer_complete_e2e",
+            "ok": bool(execute.get("ok")) and bool(execute_receipt and execute_receipt.get("ok")),
+            "detail": (
+                (execute_receipt or {}).get("behavior", {}).get("status")
+                if execute_receipt
+                else execute.get("detail") or ""
+            )
+            or (execute.get("detail") or ""),
+        },
+    ]
+
+    # Fold named domain cases from execute receipt (required richer ids).
+    rich_from_exec: dict[str, dict[str, Any]] = {}
+    if execute_receipt:
+        for c in (execute_receipt.get("behavior") or {}).get("cases") or []:
+            cid = c.get("id")
+            if cid in RICH_CASE_IDS:
+                rich_from_exec[cid] = {
+                    "id": cid,
+                    "ok": bool(c.get("ok")),
+                    "detail": c.get("detail") or "",
+                }
+    for cid in RICH_CASE_IDS:
+        if cid in rich_from_exec:
+            cases.append(rich_from_exec[cid])
+        else:
+            cases.append(
+                {
+                    "id": cid,
+                    "ok": False,
+                    "detail": "missing from execute-consumer receipt",
+                }
+            )
+
     all_ok = bool(cases) and all(c["ok"] for c in cases)
-    blocked = (not all_ok) and _looks_blocked(cases_raw)
+    blocked = (not all_ok) and _looks_blocked(
+        [
+            readme.get("stdout") or "",
+            readme.get("stderr") or "",
+            readme.get("detail") or "",
+            execute.get("stdout") or "",
+            execute.get("stderr") or "",
+            execute.get("detail") or "",
+            json.dumps(execute_receipt) if execute_receipt else "",
+        ]
+    )
     # Skip-npm is not a full live consumer prove — never greenwash as behavior_proven.
-    real_prove = all_ok and not skipped_npm and any(
-        c["id"] in {"consumer_complete_e2e", "readme_media"} and c["ok"] for c in cases
+    rich_ok = all(
+        any(c["id"] == rid and c["ok"] for c in cases) for rid in RICH_CASE_IDS
+    )
+    real_prove = (
+        all_ok
+        and not skipped_npm
+        and any(c["id"] == "consumer_complete_e2e" and c["ok"] for c in cases)
+        and any(c["id"] == "readme_media" and c["ok"] for c in cases)
+        and rich_ok
     )
     if blocked:
         env_status = "BLOCKED_ENVIRONMENT"
@@ -107,7 +189,10 @@ def _build_receipt(cases_raw: list[dict[str, Any]], skipped_npm: bool) -> dict[s
         "environment_status": env_status,
         "blocked_environment": bool(blocked),
         "behavior_proven": bool(behavior_proven and ok),
-        "prover": "scripts/complete-e2e/check_readme_media.py + scripts/complete-e2e/consumer.py",
+        "prover": (
+            "scripts/complete-e2e/check_readme_media.py + "
+            "scripts/complete-e2e/execute-consumer.py"
+        ),
         "behavior": {
             "status": "ok" if behavior_proven and ok else ("blocked" if blocked else "fail"),
             "cases": cases,
@@ -144,26 +229,43 @@ def _receipt_mode(argv: list[str]) -> int:
 
     env = os.environ.copy()
     skipped_npm = env.get("PC_SKIP_NPM") == "1"
-    cases_raw = [
-        _run_case("readme_media", HERE / "check_readme_media.py", env),
-        _run_case("consumer_complete_e2e", HERE / "consumer.py", env),
-    ]
-    # Mirror run.py human summary on stderr so stdout stays receipt-only.
+
     print("power-claude complete-e2e (prove-receipt)", file=sys.stderr)
     print("----------------------------------------", file=sys.stderr)
-    for c in cases_raw:
-        label = "PASS" if c["ok"] else "FAIL"
-        print(f"  {label}  {c['id']}: {c['detail'][:120]}", file=sys.stderr)
-        # Also forward captured streams to stderr for diagnosis
-        if c.get("stdout"):
-            sys.stderr.write(c["stdout"])
-            if not str(c["stdout"]).endswith("\n"):
-                sys.stderr.write("\n")
-        if c.get("stderr"):
-            sys.stderr.write(c["stderr"])
-            if not str(c["stderr"]).endswith("\n"):
-                sys.stderr.write("\n")
-    receipt = _build_receipt(cases_raw, skipped_npm=skipped_npm)
+
+    readme = _run_script(HERE / "check_readme_media.py", [], env)
+    print(
+        f"  {'PASS' if readme['ok'] else 'FAIL'}  readme_media: {readme['detail'][:120]}",
+        file=sys.stderr,
+    )
+    if readme.get("stdout"):
+        sys.stderr.write(readme["stdout"])
+        if not str(readme["stdout"]).endswith("\n"):
+            sys.stderr.write("\n")
+    if readme.get("stderr"):
+        sys.stderr.write(readme["stderr"])
+        if not str(readme["stderr"]).endswith("\n"):
+            sys.stderr.write("\n")
+
+    # Require live execute path (runs consumer; emits domain cases).
+    execute = _run_script(HERE / "execute-consumer.py", [], env)
+    execute_receipt = _parse_execute_receipt(execute.get("stdout") or "")
+    print(
+        f"  {'PASS' if execute['ok'] else 'FAIL'}  execute-consumer: {execute['detail'][:120]}",
+        file=sys.stderr,
+    )
+    # Forward execute stderr (consumer live output lives there).
+    if execute.get("stderr"):
+        sys.stderr.write(execute["stderr"])
+        if not str(execute["stderr"]).endswith("\n"):
+            sys.stderr.write("\n")
+
+    receipt = _build_receipt(
+        readme=readme,
+        execute=execute,
+        execute_receipt=execute_receipt,
+        skipped_npm=skipped_npm,
+    )
     print("----------------------------------------", file=sys.stderr)
     print(
         "COMPLETE_E2E: PASS" if receipt["ok"] and receipt["behavior_proven"] else "COMPLETE_E2E: FAIL",
@@ -179,12 +281,12 @@ def main() -> int:
     a = set(argv)
     if a & {"-h", "--help"}:
         print(
-            "power-claude-prove: wraps scripts/complete-e2e/run.py live consumer proofs; "
+            "power-claude-prove: wraps execute-consumer + readme_media live proofs; "
             "use --receipt for fail-closed JSON receipt (stdout + .receipts/)"
         )
         return 0
     if a & {"-V", "--version"}:
-        print("power-claude-prove 1.1.0")
+        print("power-claude-prove 1.2.0")
         return 0
     if "--receipt" in a:
         return _receipt_mode(argv)
@@ -195,6 +297,7 @@ def main() -> int:
         cwd=str(ROOT),
     )
     # File-only receipt after live run (stdout remains run.py human output).
+    # Richer domain cases require --receipt (execute-consumer path).
     ok_live = proc.returncode == 0
     skipped_npm = os.environ.get("PC_SKIP_NPM") == "1"
     cases = [

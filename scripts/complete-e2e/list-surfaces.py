@@ -11,6 +11,7 @@ from pathlib import Path
 CANDIDATES = (
     ("cli:complete-e2e", "scripts/complete-e2e/run.py"),
     ("cli:consumer", "scripts/complete-e2e/consumer.py"),
+    ("cli:execute-consumer", "scripts/complete-e2e/execute-consumer.py"),
     ("cli:verify", "scripts/verify/run.py"),
     ("cli:prove", "scripts/complete-e2e/prove.py"),
 )

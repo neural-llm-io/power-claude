@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Fail-closed gate: prove-receipt must attest behavior_proven==true and ok==true.
+# Fail-closed gate: prove-receipt must attest behavior_proven==true and ok==true
+# with richer domain behavior.cases from execute-consumer.
 set -uo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 PROVE="$ROOT/scripts/complete-e2e/prove.py"
@@ -36,21 +37,28 @@ assert stdout_receipt.get("blocked_environment") is False, stdout_receipt
 assert stdout_receipt.get("environment_status") == "live", stdout_receipt
 assert stdout_receipt.get("schema") == "hurc-complete-e2e-power-claude-prove/v1", stdout_receipt
 cases = stdout_receipt.get("behavior", {}).get("cases")
-assert isinstance(cases, list) and len(cases) >= 2, cases
+assert isinstance(cases, list) and len(cases) >= 5, cases
 ids = {c.get("id") for c in cases}
 assert "readme_media" in ids and "consumer_complete_e2e" in ids, ids
+for rid in ("packed_cli_help", "registry_metadata", "marketplace_api"):
+    assert rid in ids, ids
 assert all(c.get("ok") is True for c in cases), cases
 assert rc == 0, f"prove --receipt exited {rc}; stderr=\n{stderr[-2000:]}"
 
 adapters = runtime.get("adapters") or []
 ids_rt = {a.get("id") for a in adapters}
 assert "power-claude-list-surfaces" in ids_rt, ids_rt
-assert "power-claude-prove-run" in ids_rt, ids_rt
+assert "power-claude-execute-consumer" in ids_rt, ids_rt
 assert "power-claude-prove-receipt" in ids_rt, ids_rt
 receipt_adapter = next(a for a in adapters if a.get("id") == "power-claude-prove-receipt")
 assert receipt_adapter.get("argv") == ["python3", "scripts/complete-e2e/prove.py", "--receipt"], receipt_adapter
 list_adapter = next(a for a in adapters if a.get("id") == "power-claude-list-surfaces")
 assert list_adapter.get("argv") == ["python3", "scripts/complete-e2e/list-surfaces.py"], list_adapter
+exec_adapter = next(a for a in adapters if a.get("id") == "power-claude-execute-consumer")
+assert exec_adapter.get("argv") == ["python3", "scripts/complete-e2e/execute-consumer.py"], exec_adapter
 
-print("PASS complete-e2e-prove-receipt: ok=true behavior_proven=true live cases readme_media+consumer_complete_e2e")
+print(
+    "PASS complete-e2e-prove-receipt: ok=true behavior_proven=true live cases "
+    "readme_media+consumer_complete_e2e+packed_cli_help+registry_metadata+marketplace_api"
+)
 PY
