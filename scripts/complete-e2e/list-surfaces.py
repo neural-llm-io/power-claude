@@ -1,3 +1,9 @@
+#!/usr/bin/env python3
+"""Inventory-only surface listing for complete-e2e runtime.
+
+Fail-closed attestation guard: this adapter MUST NEVER set behavior_proven true.
+Inventory listing is not a prove path — only execute/prove adapters may attest.
+"""
 from __future__ import annotations
 import argparse, json, sys
 from pathlib import Path
@@ -26,7 +32,13 @@ def main() -> int:
     if not root.is_dir():
         print("list-surfaces: project-dir not a directory", file=sys.stderr)
         return 2
-    payload = {"schema": "hurc-complete-e2e-runtime-surfaces/v1", "surfaces": _surfaces(root)}
+    # Explicit false: inventory must not self-attest (omit would also be ok; force false is
+    # fail-closed and machine-checkable by complete-e2e-list-surfaces-no-attest regression).
+    payload = {
+        "schema": "hurc-complete-e2e-runtime-surfaces/v1",
+        "behavior_proven": False,
+        "surfaces": _surfaces(root),
+    }
     sys.stdout.write(json.dumps(payload, indent=2) + "\n")
     return 0
 
