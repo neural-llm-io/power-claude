@@ -14,6 +14,7 @@ CANDIDATES = (
     ("cli:execute-consumer", "scripts/complete-e2e/execute-consumer.py"),
     ("cli:verify", "scripts/verify/run.py"),
     ("cli:prove", "scripts/complete-e2e/prove.py"),
+    ("cli:clean-room-replay", "scripts/complete-e2e/clean-room-replay.py"),
 )
 
 

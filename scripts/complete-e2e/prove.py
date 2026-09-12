@@ -291,35 +291,43 @@ def main() -> int:
     if "--receipt" in a:
         return _receipt_mode(argv)
 
-    # Default: live wrap of run.py (existing), plus best-effort file receipt from exit code.
+    # Default: live wrap of run.py for human COMPLETE_E2E output.
+    # Theater-kill: NEVER attest behavior_proven without --receipt (rich execute path).
+    # A file receipt may exist for diagnostics but behavior_proven stays false.
     proc = subprocess.run(
         [sys.executable, str(ROOT / "scripts/complete-e2e/run.py")],
         cwd=str(ROOT),
     )
-    # File-only receipt after live run (stdout remains run.py human output).
-    # Richer domain cases require --receipt (execute-consumer path).
     ok_live = proc.returncode == 0
     skipped_npm = os.environ.get("PC_SKIP_NPM") == "1"
     cases = [
         {
             "id": "readme_media",
             "ok": ok_live,
-            "detail": "bundled via run.py (see live output)",
+            "detail": "bundled via run.py (see live output); use --receipt to attest",
         },
         {
             "id": "consumer_complete_e2e",
             "ok": ok_live and not skipped_npm,
-            "detail": "bundled via run.py (see live output)",
+            "detail": "bundled via run.py (see live output); use --receipt to attest",
         },
     ]
     receipt = {
         "schema": SCHEMA,
-        "ok": bool(ok_live and not skipped_npm),
-        "environment_status": "live" if ok_live and not skipped_npm else ("partial_skip_npm" if skipped_npm else "prove_failed"),
+        "ok": False,
+        "environment_status": (
+            "receipt_mode_required"
+            if ok_live and not skipped_npm
+            else ("partial_skip_npm" if skipped_npm else "prove_failed")
+        ),
         "blocked_environment": False,
-        "behavior_proven": bool(ok_live and not skipped_npm),
+        # Fail-closed: only prove.py --receipt (execute-consumer rich cases) may attest.
+        "behavior_proven": False,
         "prover": "scripts/complete-e2e/run.py",
-        "behavior": {"status": "ok" if ok_live and not skipped_npm else "fail", "cases": cases},
+        "behavior": {
+            "status": "fail",
+            "cases": cases,
+        },
     }
     RECEIPT_DIR.mkdir(parents=True, exist_ok=True)
     RECEIPT_PATH.write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
