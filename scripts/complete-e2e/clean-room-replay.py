@@ -4,7 +4,7 @@
 Deletes any on-disk prove receipt, re-runs prove.py --receipt, then fail-closed
 if the receipt is missing, stale (mtime before replay start), or
 behavior_proven is not true. Also requires ok=true, live env, and the richer
-domain behavior.cases (packed_cli_help, packed_dual_bin_version,
+domain behavior.cases (packed_cli_help, packed_dual_bin_version, packed_artifact_sha256,
 registry_metadata, marketplace_api, marketplace_vsix_download, marketplace_asset_heads,
 open_vsx_vsix_download, open_vsx_asset_heads, open_vsx_icon_integrity, product_site_links, pricing_page_links).
 
@@ -30,6 +30,7 @@ SCHEMA = "hurc-complete-e2e-power-claude-prove/v1"
 RICH_CASE_IDS = (
     "packed_cli_help",
     "packed_dual_bin_version",
+    "packed_artifact_sha256",
     "registry_metadata",
     "marketplace_api",
     "marketplace_vsix_download",
@@ -71,7 +72,7 @@ def _validate_receipt(receipt: dict[str, Any]) -> str | None:
     if receipt.get("environment_status") != "live":
         return f"environment_status!='live' ({receipt.get('environment_status')!r})"
     cases = (receipt.get("behavior") or {}).get("cases")
-    if not isinstance(cases, list) or len(cases) < 13:
+    if not isinstance(cases, list) or len(cases) < 14:
         return f"behavior.cases too short: {cases!r}"
     by_id = {c.get("id"): c for c in cases if isinstance(c, dict)}
     for need in ("readme_media", "consumer_complete_e2e", *RICH_CASE_IDS):
