@@ -3,8 +3,8 @@
 
 --receipt runs readme_media + execute-consumer (live consumer domain cases) and emits
 a fail-closed receipt. Richer behavior.cases ids (packed_cli_help, registry_metadata,
-marketplace_api, open_vsx_vsix_download, product_site_links, pricing_page_links) are
-required for behavior_proven when prove succeeds.
+marketplace_api, marketplace_vsix_download, open_vsx_vsix_download, product_site_links,
+pricing_page_links) are required for behavior_proven when prove succeeds.
 """
 from __future__ import annotations
 
@@ -26,6 +26,7 @@ RICH_CASE_IDS = (
     "packed_cli_help",
     "registry_metadata",
     "marketplace_api",
+    "marketplace_vsix_download",
     "open_vsx_vsix_download",
     "product_site_links",
     "pricing_page_links",

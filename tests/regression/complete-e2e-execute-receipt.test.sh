@@ -43,6 +43,7 @@ named = {
     "packed_cli_help",
     "registry_metadata",
     "marketplace_api",
+    "marketplace_vsix_download",
     "open_vsx_vsix_download",
     "product_site_links",
     "pricing_page_links",

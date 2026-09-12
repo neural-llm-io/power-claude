@@ -4,7 +4,7 @@
 behavior_proven=true ONLY when ok=true after a real consumer execute (not inventory,
 not skip-npm, not tautology). Named behavior.cases map PASS lines from consumer to
 domain outcomes (subprocess CLI help, npm registry metadata, marketplace API,
-open-vsx vsix download HEAD, product/pricing site cross-links).
+marketplace vsix HEAD, open-vsx vsix download HEAD, product/pricing site cross-links).
 """
 from __future__ import annotations
 
@@ -35,6 +35,9 @@ CASE_MARKERS: dict[str, tuple[str, ...]] = {
     "marketplace_api": (
         "PASS  marketplace api publisher/name",
         "PASS  marketplace listing body proves Power Claude",
+    ),
+    "marketplace_vsix_download": (
+        "PASS  marketplace vsix HEAD",
     ),
     # Live customer surfaces already proven by consumer.py — require named cases.
     "open_vsx_vsix_download": (
