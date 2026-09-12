@@ -272,6 +272,16 @@ def main():
                 )
                 if isinstance(fm, dict) and fm.get("schemaVersion") == 1 and isinstance(feats, dict) and all(k in feats for k in need_feats):
                     pass_("packed feature-matrix core stamps")
+                    extra_feats = ("pc-your-request-banner", "pc-objective-mode")
+                    extra_ok = all(
+                        isinstance(feats.get(k), dict) and feats[k].get("owner") == "power-claude"
+                        for k in extra_feats
+                    )
+                    if extra_ok:
+                        pass_("packed feature-matrix extra stamps")
+                    else:
+                        fail_("packed feature-matrix extra stamps unexpected")
+                        rc = 1
                 else:
                     fail_("packed feature-matrix contract unexpected")
                     rc = 1
