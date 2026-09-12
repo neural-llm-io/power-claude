@@ -96,6 +96,9 @@ for rid in (
     "packed_cli_help",
     "registry_metadata",
     "marketplace_api",
+    "open_vsx_vsix_download",
+    "product_site_links",
+    "pricing_page_links",
 ):
     assert rid in ids, ids
 assert all(c.get("ok") is True for c in cases), cases

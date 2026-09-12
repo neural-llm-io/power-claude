@@ -39,10 +39,18 @@ cases = stdout_receipt.get("behavior", {}).get("cases")
 assert isinstance(cases, list) and len(cases) >= 2, cases
 ids = {c.get("id") for c in cases}
 # At least one named domain case ok; prefer the three consumer-proven outcomes.
-named = {"packed_cli_help", "registry_metadata", "marketplace_api"}
-assert ids & named, ids
-assert any(c.get("id") in named and c.get("ok") is True for c in cases), cases
+named = {
+    "packed_cli_help",
+    "registry_metadata",
+    "marketplace_api",
+    "open_vsx_vsix_download",
+    "product_site_links",
+    "pricing_page_links",
+}
+assert named <= ids, ids
 assert all(c.get("ok") is True for c in cases if c.get("id") in named), cases
+# Fail-closed: every required live customer-surface case must be present+ok.
+assert all(c.get("ok") is True for c in cases), cases
 assert rc == 0, f"execute-consumer exited {rc}; stderr=\n{stderr[-2000:]}"
 
 adapters = runtime.get("adapters") or []

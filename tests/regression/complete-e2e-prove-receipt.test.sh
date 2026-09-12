@@ -37,10 +37,17 @@ assert stdout_receipt.get("blocked_environment") is False, stdout_receipt
 assert stdout_receipt.get("environment_status") == "live", stdout_receipt
 assert stdout_receipt.get("schema") == "hurc-complete-e2e-power-claude-prove/v1", stdout_receipt
 cases = stdout_receipt.get("behavior", {}).get("cases")
-assert isinstance(cases, list) and len(cases) >= 5, cases
+assert isinstance(cases, list) and len(cases) >= 8, cases
 ids = {c.get("id") for c in cases}
 assert "readme_media" in ids and "consumer_complete_e2e" in ids, ids
-for rid in ("packed_cli_help", "registry_metadata", "marketplace_api"):
+for rid in (
+    "packed_cli_help",
+    "registry_metadata",
+    "marketplace_api",
+    "open_vsx_vsix_download",
+    "product_site_links",
+    "pricing_page_links",
+):
     assert rid in ids, ids
 assert all(c.get("ok") is True for c in cases), cases
 assert rc == 0, f"prove --receipt exited {rc}; stderr=\n{stderr[-2000:]}"
@@ -59,6 +66,7 @@ assert exec_adapter.get("argv") == ["python3", "scripts/complete-e2e/execute-con
 
 print(
     "PASS complete-e2e-prove-receipt: ok=true behavior_proven=true live cases "
-    "readme_media+consumer_complete_e2e+packed_cli_help+registry_metadata+marketplace_api"
+    "readme_media+consumer_complete_e2e+packed_cli_help+registry_metadata+"
+    "marketplace_api+open_vsx_vsix_download+product_site_links+pricing_page_links"
 )
 PY
