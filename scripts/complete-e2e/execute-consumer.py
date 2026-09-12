@@ -6,7 +6,7 @@ not skip-npm, not tautology). Named behavior.cases map PASS lines from consumer 
 domain outcomes (subprocess CLI help, packed dual-bin --version, npm registry
 metadata, marketplace API, marketplace vsix HEAD, marketplace license/details/icon
 HEADs, open-vsx vsix download HEAD, open-vsx icon/license/readme/sha256 HEADs,
-product/pricing site cross-links).
+open-vsx sha256 body + packed icon size integrity, product/pricing site cross-links).
 """
 from __future__ import annotations
 
@@ -62,6 +62,11 @@ CASE_MARKERS: dict[str, tuple[str, ...]] = {
         "PASS  open-vsx license HEAD",
         "PASS  open-vsx readme HEAD",
         "PASS  open-vsx sha256 HEAD",
+    ),
+    # Open VSX sha256 body + packed icon size already proven by consumer.py (require BOTH).
+    "open_vsx_icon_integrity": (
+        "PASS  open-vsx sha256 body",
+        "PASS  packed icon size matches open-vsx",
     ),
     "product_site_links": (
         "PASS  product site links pricing",

@@ -48,6 +48,7 @@ named = {
     "marketplace_asset_heads",
     "open_vsx_vsix_download",
     "open_vsx_asset_heads",
+    "open_vsx_icon_integrity",
     "product_site_links",
     "pricing_page_links",
 }
