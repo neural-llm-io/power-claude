@@ -38,10 +38,40 @@ def main():
     else:
         fail_("bytecode present"); rc = 1
     print("Layer 3 -- required prove entrypoints")
-    required = ["scripts/verify/run.sh", "scripts/verify/run.py", "scripts/complete-e2e/consumer.py", "scripts/complete-e2e/consumer.sh", "scripts/complete-e2e/check_readme_media.py", "scripts/complete-e2e/run.py", "scripts/complete-e2e/run.sh", "scripts/complete-e2e/prove.py", "scripts/complete-e2e/prove.sh", "scripts/complete-e2e/list-surfaces.py", "scripts/complete-e2e/execute-consumer.py", "scripts/complete-e2e/execute-consumer.sh", "configs/complete-e2e/runtime.json", "tests/regression/complete-e2e-prove-receipt.test.sh", "tests/regression/complete-e2e-list-surfaces-no-attest.test.sh", "tests/regression/complete-e2e-execute-receipt.test.sh", "scripts/complete-e2e/clean-room-replay.py", "scripts/complete-e2e/clean-room-replay.sh", "tests/regression/complete-e2e-clean-room-replay.test.sh", "scripts/complete-e2e/check-adapter-paths.py", "scripts/complete-e2e/check-adapter-paths.sh", "tests/regression/complete-e2e-adapter-paths.test.sh", "scripts/tidy/run.sh", "scripts/tidy/run.py", "scripts/enforce/run.sh", "scripts/enforce/run.py", "scripts/release-ready/run.sh", "scripts/release-ready/run.py"]
+    required = ["scripts/verify/run.sh", "scripts/verify/run.py", "scripts/complete-e2e/consumer.py", "scripts/complete-e2e/consumer.sh", "scripts/complete-e2e/check_readme_media.py", "scripts/complete-e2e/run.py", "scripts/complete-e2e/run.sh", "scripts/complete-e2e/prove.py", "scripts/complete-e2e/prove.sh", "scripts/complete-e2e/list-surfaces.py", "scripts/complete-e2e/execute-consumer.py", "scripts/complete-e2e/execute-consumer.sh", "configs/complete-e2e/runtime.json", "tests/regression/complete-e2e-prove-receipt.test.sh", "tests/regression/complete-e2e-list-surfaces-no-attest.test.sh", "tests/regression/complete-e2e-execute-receipt.test.sh", "scripts/complete-e2e/clean-room-replay.py", "scripts/complete-e2e/clean-room-replay.sh", "tests/regression/complete-e2e-clean-room-replay.test.sh", "scripts/complete-e2e/check-adapter-paths.py", "scripts/complete-e2e/check-adapter-paths.sh", "tests/regression/complete-e2e-adapter-paths.test.sh", "tests/regression/enforce-runs-fail-closed-regressions.test.sh", "scripts/tidy/run.sh", "scripts/tidy/run.py", "scripts/enforce/run.sh", "scripts/enforce/run.py", "scripts/release-ready/run.sh", "scripts/release-ready/run.py"]
     for rel in required:
         if (ROOT / rel).is_file(): pass_("present " + rel)
         else: fail_("missing " + rel); rc = 1
+    # Key fail-closed regressions: actually RUN them (presence-only is theater).
+    # Always a check — even under --fix (running tests is not a chmod-fix).
+    print("Layer 3b -- run fail-closed regressions")
+    live_regressions = [
+        "tests/regression/complete-e2e-execute-receipt.test.sh",
+        "tests/regression/complete-e2e-prove-receipt.test.sh",
+        "tests/regression/complete-e2e-clean-room-replay.test.sh",
+        "tests/regression/complete-e2e-adapter-paths.test.sh",
+        "tests/regression/complete-e2e-list-surfaces-no-attest.test.sh",
+        "tests/regression/enforce-runs-fail-closed-regressions.test.sh",
+    ]
+    for rel in live_regressions:
+        script = ROOT / rel
+        if not script.is_file():
+            fail_("missing regression " + rel)
+            rc = 1
+            continue
+        env = os.environ.copy()
+        env["PYTHONDONTWRITEBYTECODE"] = "1"
+        env.pop("PC_SKIP_NPM", None)
+        r = subprocess.run(
+            ["bash", str(script)],
+            cwd=str(ROOT),
+            env=env,
+        )
+        if r.returncode == 0:
+            pass_("ran " + rel)
+        else:
+            fail_("ENFORCE FAIL regression " + rel + " exited " + str(r.returncode))
+            rc = 1
     print("Layer 4 -- gitignore bytecode rules")
     gi_path = ROOT / ".gitignore"
     gi = gi_path.read_text(encoding="utf-8", errors="replace") if gi_path.is_file() else ""
