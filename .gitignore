@@ -6,3 +6,6 @@ tmp/
 __pycache__/
 *.pyc
 .venv/
+
+# complete-e2e prove receipts (generated; never product source)
+scripts/complete-e2e/.receipts/

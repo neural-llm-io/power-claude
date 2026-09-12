@@ -1,13 +1,28 @@
 {
   "schema": "hurc-complete-e2e-runtime/v1",
-  "description": "CLI adapter so power-claude consumer compile is not an empty universe.",
+  "description": "List + live prove-run + fail-closed prove-receipt adapters for power-claude consumer e2e.",
   "adapters": [
     {
-      "id": "power-claude-consumer-cli",
+      "id": "power-claude-list-surfaces",
       "kind": "cli",
       "surface_kind": "cli",
-      "timeout_sec": 120,
+      "timeout_sec": 30,
       "argv": ["python3", "scripts/complete-e2e/list-surfaces.py"]
+    },
+    {
+      "id": "power-claude-prove-run",
+      "kind": "cli",
+      "surface_kind": "cli",
+      "timeout_sec": 300,
+      "argv": ["python3", "scripts/complete-e2e/run.py"]
+    },
+    {
+      "id": "power-claude-prove-receipt",
+      "kind": "prover",
+      "surface_kind": "cli",
+      "timeout_sec": 300,
+      "fail_closed_on_unreachable": true,
+      "argv": ["python3", "scripts/complete-e2e/prove.py", "--receipt"]
     }
   ]
 }
