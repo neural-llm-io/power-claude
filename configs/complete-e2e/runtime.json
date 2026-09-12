@@ -1,6 +1,6 @@
 {
   "schema": "hurc-complete-e2e-runtime/v1",
-  "description": "List (inventory) + live execute-consumer + fail-closed prove-receipt + clean-room replay (re-run prove --receipt; fail missing/stale/behavior_proven!=true).",
+  "description": "List (inventory) + adapter-path MISSING_PROVER gate + live execute-consumer + fail-closed prove-receipt + clean-room replay (re-run prove --receipt; fail missing/stale/behavior_proven!=true).",
   "adapters": [
     {
       "id": "power-claude-list-surfaces",
@@ -10,6 +10,17 @@
       "argv": [
         "python3",
         "scripts/complete-e2e/list-surfaces.py"
+      ]
+    },
+    {
+      "id": "power-claude-adapter-paths",
+      "kind": "prover",
+      "surface_kind": "cli",
+      "timeout_sec": 30,
+      "fail_closed_on_unreachable": true,
+      "argv": [
+        "python3",
+        "scripts/complete-e2e/check-adapter-paths.py"
       ]
     },
     {

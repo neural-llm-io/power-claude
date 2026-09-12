@@ -38,7 +38,7 @@ def main():
     else:
         fail_("bytecode present"); rc = 1
     print("Layer 3 -- required prove entrypoints")
-    required = ["scripts/verify/run.sh", "scripts/verify/run.py", "scripts/complete-e2e/consumer.py", "scripts/complete-e2e/consumer.sh", "scripts/complete-e2e/check_readme_media.py", "scripts/complete-e2e/run.py", "scripts/complete-e2e/run.sh", "scripts/complete-e2e/prove.py", "scripts/complete-e2e/prove.sh", "scripts/complete-e2e/list-surfaces.py", "scripts/complete-e2e/execute-consumer.py", "scripts/complete-e2e/execute-consumer.sh", "configs/complete-e2e/runtime.json", "tests/regression/complete-e2e-prove-receipt.test.sh", "tests/regression/complete-e2e-list-surfaces-no-attest.test.sh", "tests/regression/complete-e2e-execute-receipt.test.sh", "scripts/complete-e2e/clean-room-replay.py", "scripts/complete-e2e/clean-room-replay.sh", "tests/regression/complete-e2e-clean-room-replay.test.sh", "scripts/tidy/run.sh", "scripts/tidy/run.py", "scripts/enforce/run.sh", "scripts/enforce/run.py", "scripts/release-ready/run.sh", "scripts/release-ready/run.py"]
+    required = ["scripts/verify/run.sh", "scripts/verify/run.py", "scripts/complete-e2e/consumer.py", "scripts/complete-e2e/consumer.sh", "scripts/complete-e2e/check_readme_media.py", "scripts/complete-e2e/run.py", "scripts/complete-e2e/run.sh", "scripts/complete-e2e/prove.py", "scripts/complete-e2e/prove.sh", "scripts/complete-e2e/list-surfaces.py", "scripts/complete-e2e/execute-consumer.py", "scripts/complete-e2e/execute-consumer.sh", "configs/complete-e2e/runtime.json", "tests/regression/complete-e2e-prove-receipt.test.sh", "tests/regression/complete-e2e-list-surfaces-no-attest.test.sh", "tests/regression/complete-e2e-execute-receipt.test.sh", "scripts/complete-e2e/clean-room-replay.py", "scripts/complete-e2e/clean-room-replay.sh", "tests/regression/complete-e2e-clean-room-replay.test.sh", "scripts/complete-e2e/check-adapter-paths.py", "scripts/complete-e2e/check-adapter-paths.sh", "tests/regression/complete-e2e-adapter-paths.test.sh", "scripts/tidy/run.sh", "scripts/tidy/run.py", "scripts/enforce/run.sh", "scripts/enforce/run.py", "scripts/release-ready/run.sh", "scripts/release-ready/run.py"]
     for rel in required:
         if (ROOT / rel).is_file(): pass_("present " + rel)
         else: fail_("missing " + rel); rc = 1
@@ -50,7 +50,25 @@ def main():
         with gi_path.open("a", encoding="utf-8") as f: f.write("\\n# Python bytecode\\n__pycache__/\\n*.pyc\\n")
         info_("appended bytecode rules to .gitignore")
     else: fail_(".gitignore missing bytecode rules"); rc = 1
-    print("Layer 5 -- policy scan (no ALLOW_UNPROVEN / fake CERTIFIED)")
+    print("Layer 5 -- runtime.json adapter argv paths (MISSING_PROVER)")
+    gate = ROOT / "scripts/complete-e2e/check-adapter-paths.py"
+    if gate.is_file():
+        r = subprocess.run(
+            [sys.executable, str(gate)],
+            cwd=str(ROOT),
+            capture_output=True,
+            text=True,
+        )
+        if r.returncode == 0:
+            pass_("adapter argv paths present")
+        else:
+            fail_("MISSING_PROVER: adapter argv path gate")
+            if r.stderr:
+                print(r.stderr.rstrip())
+            rc = 1
+    else:
+        fail_("missing check-adapter-paths.py"); rc = 1
+    print("Layer 6 -- policy scan (no ALLOW_UNPROVEN / fake CERTIFIED)")
     banned = []
     for path in sorted(scripts_root.rglob("*")):
         if not path.is_file():
@@ -71,7 +89,7 @@ def main():
         pass_("no ALLOW_UNPROVEN/fake CERTIFIED enables in scripts")
     else:
         fail_("policy violations: " + "; ".join(banned[:5])); rc = 1
-    print("Layer 6 -- tidy --full after enforce")
+    print("Layer 7 -- tidy --full after enforce")
 
     tidy = ROOT / "scripts/tidy/run.sh"
     if tidy.is_file():
