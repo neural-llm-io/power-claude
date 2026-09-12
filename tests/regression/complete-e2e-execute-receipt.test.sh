@@ -41,6 +41,7 @@ ids = {c.get("id") for c in cases}
 # At least one named domain case ok; prefer the three consumer-proven outcomes.
 named = {
     "packed_cli_help",
+    "packed_dual_bin_version",
     "registry_metadata",
     "marketplace_api",
     "marketplace_vsix_download",

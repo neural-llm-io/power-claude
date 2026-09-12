@@ -2,9 +2,10 @@
 """Live consumer prove wrapper + fail-closed prove receipt (NDP/hurc contract shape).
 
 --receipt runs readme_media + execute-consumer (live consumer domain cases) and emits
-a fail-closed receipt. Richer behavior.cases ids (packed_cli_help, registry_metadata,
-marketplace_api, marketplace_vsix_download, open_vsx_vsix_download, product_site_links,
-pricing_page_links) are required for behavior_proven when prove succeeds.
+a fail-closed receipt. Richer behavior.cases ids (packed_cli_help,
+packed_dual_bin_version, registry_metadata, marketplace_api, marketplace_vsix_download,
+open_vsx_vsix_download, product_site_links, pricing_page_links) are required for
+behavior_proven when prove succeeds.
 """
 from __future__ import annotations
 
@@ -24,6 +25,7 @@ SCHEMA = "hurc-complete-e2e-power-claude-prove/v1"
 # Domain cases surfaced by execute-consumer (must appear in prove receipt on success).
 RICH_CASE_IDS = (
     "packed_cli_help",
+    "packed_dual_bin_version",
     "registry_metadata",
     "marketplace_api",
     "marketplace_vsix_download",

@@ -94,6 +94,7 @@ for rid in (
     "readme_media",
     "consumer_complete_e2e",
     "packed_cli_help",
+    "packed_dual_bin_version",
     "registry_metadata",
     "marketplace_api",
     "marketplace_vsix_download",
