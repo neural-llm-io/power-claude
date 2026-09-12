@@ -100,6 +100,7 @@ for rid in (
     "marketplace_vsix_download",
     "marketplace_asset_heads",
     "open_vsx_vsix_download",
+    "open_vsx_asset_heads",
     "product_site_links",
     "pricing_page_links",
 ):
