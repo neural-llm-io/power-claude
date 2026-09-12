@@ -233,6 +233,47 @@ def _receipt_mode(argv: list[str]) -> int:
     print("power-claude complete-e2e (prove-receipt)", file=sys.stderr)
     print("----------------------------------------", file=sys.stderr)
 
+    # Fail-closed: runtime.json adapter argv targets must exist (MISSING_PROVER).
+    # Path occupancy is not a live prove — never greenwash behavior_proven here.
+    gate = _run_script(HERE / "check-adapter-paths.py", [], env)
+    gate_receipt = _parse_execute_receipt(gate.get("stdout") or "")
+    gate_detail = (
+        (gate_receipt or {}).get("detail")
+        or gate.get("detail")
+        or "MISSING_PROVER"
+    )
+    print(
+        f"  {'PASS' if gate['ok'] else 'FAIL'}  adapter_paths: {str(gate_detail)[:160]}",
+        file=sys.stderr,
+    )
+    if gate.get("stderr"):
+        sys.stderr.write(gate["stderr"])
+        if not str(gate["stderr"]).endswith("\n"):
+            sys.stderr.write("\n")
+    if not gate.get("ok"):
+        receipt = {
+            "schema": SCHEMA,
+            "ok": False,
+            "environment_status": "MISSING_PROVER",
+            "blocked_environment": False,
+            "behavior_proven": False,
+            "prover": "scripts/complete-e2e/check-adapter-paths.py",
+            "behavior": {
+                "status": "fail",
+                "cases": [
+                    {
+                        "id": "adapter_paths",
+                        "ok": False,
+                        "detail": gate_detail,
+                    }
+                ],
+            },
+        }
+        print("----------------------------------------", file=sys.stderr)
+        print("COMPLETE_E2E: FAIL", file=sys.stderr)
+        _emit_receipt(receipt, out_path)
+        return 1
+
     readme = _run_script(HERE / "check_readme_media.py", [], env)
     print(
         f"  {'PASS' if readme['ok'] else 'FAIL'}  readme_media: {readme['detail'][:120]}",
