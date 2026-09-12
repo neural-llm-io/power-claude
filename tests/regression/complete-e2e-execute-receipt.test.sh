@@ -42,6 +42,7 @@ ids = {c.get("id") for c in cases}
 named = {
     "packed_cli_help",
     "packed_dual_bin_version",
+    "packed_artifact_sha256",
     "registry_metadata",
     "marketplace_api",
     "marketplace_vsix_download",
