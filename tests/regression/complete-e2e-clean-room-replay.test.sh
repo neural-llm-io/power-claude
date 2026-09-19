@@ -112,6 +112,7 @@ for rid in (
     "packed_registry_integrity",
     "packed_prices_contract",
     "packed_prices_ladder_cache",
+    "packed_prices_pro_yearly",
     "packed_feature_matrix_stamps",
     "packed_jq_platform_sha",
     "registry_dist_extras",
