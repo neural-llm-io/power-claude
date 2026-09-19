@@ -93,6 +93,7 @@ ids = {c.get("id") for c in cases}
 for rid in (
     "readme_media",
     "consumer_complete_e2e",
+    "browser_product_page",
     "packed_cli_help",
     "packed_cli_help_cluster",
     "packed_dual_bin_version",
