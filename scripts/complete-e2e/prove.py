@@ -4,7 +4,7 @@
 --receipt runs readme_media + execute-consumer (live consumer domain cases) and emits
 a fail-closed receipt. Richer behavior.cases ids (packed_cli_help,
 packed_dual_bin_version, packed_artifact_sha256, packed_registry_integrity, packed_prices_contract, packed_feature_matrix_stamps, packed_jq_platform_sha, packed_cli_help_cluster, packed_bin_payload, packed_media_walkthrough, packed_pkg_meta, packed_engine_enc, packed_media_marketplace_assets, packed_icon_extension_js, packed_files_contract, packed_uninstall_hook, packed_brand_assets, packed_dual_bin_paths, packed_cli_emergency_on_help, packed_cli_halt_emergency_off_help, packed_prices_ladder_cache, packed_prices_pro_yearly, registry_pack_produced_tarball, registry_dist_extras, registry_dist_file_count, registry_metadata, registry_tarball_meta, registry_listing_meta, marketplace_api, marketplace_api_listing_meta, marketplace_api_short_description, marketplace_vsix_download,
-marketplace_asset_heads, marketplace_listing_links, open_vsx_vsix_download, open_vsx_asset_heads, open_vsx_icon_integrity, open_vsx_download_count, open_vsx_listing_meta,
+marketplace_asset_heads, marketplace_listing_links, open_vsx_vsix_download, open_vsx_asset_heads, open_vsx_icon_integrity, open_vsx_download_count, open_vsx_api_namespace_name, open_vsx_listing_meta,
 product_site_links, pricing_page_links, product_pricing_site_bodies, package_json_version, packed_changelog_present) are required for behavior_proven when prove succeeds.
 """
 from __future__ import annotations
@@ -62,6 +62,7 @@ RICH_CASE_IDS = (
     "open_vsx_asset_heads",
     "open_vsx_icon_integrity",
     "open_vsx_download_count",
+    "open_vsx_api_namespace_name",
     "open_vsx_listing_meta",
     "product_site_links",
     "pricing_page_links",
