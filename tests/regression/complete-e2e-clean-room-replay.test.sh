@@ -102,6 +102,7 @@ for rid in (
     "marketplace_api",
     "marketplace_vsix_download",
     "marketplace_asset_heads",
+    "marketplace_listing_links",
     "open_vsx_vsix_download",
     "open_vsx_asset_heads",
     "open_vsx_icon_integrity",
