@@ -104,6 +104,7 @@ for rid in (
     "registry_listing_meta",
     "marketplace_api",
     "marketplace_api_listing_meta",
+    "marketplace_api_short_description",
     "marketplace_vsix_download",
     "marketplace_asset_heads",
     "marketplace_listing_links",
