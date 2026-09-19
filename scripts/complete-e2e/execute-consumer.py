@@ -6,7 +6,7 @@ not skip-npm, not tautology). Named behavior.cases map PASS lines from consumer 
 domain outcomes (subprocess CLI help, packed dual-bin --version, npm registry
 metadata, marketplace API, marketplace vsix HEAD, marketplace license/details/icon
 HEADs, open-vsx vsix download HEAD, open-vsx icon/license/readme/sha256 HEADs,
-open-vsx sha256 body + packed icon size integrity, open-vsx downloadCount, open-vsx displayName+description+listing links/timestamp, packed extension.js+bin sha256, packed tarball sha1+file count vs registry, registry dist.integrity+unpackedSize, registry dist.fileCount, registry tarball URL+shasum, registry homepage+repository+engines.node+bugs/description/keywords, marketplace api displayName+install+dates, marketplace api shortDescription, marketplace listing pricing+product links, product/pricing site cross-links, packed prices.default planPricing+apiPricing+claimMapping+communityFallbacks, packed feature-matrix core+extra stamps).
+open-vsx sha256 body + packed icon size integrity, open-vsx downloadCount, open-vsx displayName+description+listing links/timestamp, packed extension.js+bin sha256, packed tarball sha1+file count vs registry, registry dist.integrity+unpackedSize, registry dist.fileCount, registry tarball URL+shasum, registry homepage+repository+engines.node+bugs/description/keywords, marketplace api displayName+install+dates, marketplace api shortDescription, marketplace listing pricing+product links, product/pricing site cross-links, packed prices.default planPricing+apiPricing+claimMapping+communityFallbacks, packed feature-matrix core+extra stamps, packed jq linux-amd64+all-platforms sha256).
 """
 from __future__ import annotations
 
@@ -56,6 +56,11 @@ CASE_MARKERS: dict[str, tuple[str, ...]] = {
     "packed_feature_matrix_stamps": (
         "PASS  packed feature-matrix core stamps",
         "PASS  packed feature-matrix extra stamps",
+    ),
+    # Packed jq linux-amd64 entry + all-platforms sha256 already proven by consumer.py (require BOTH).
+    "packed_jq_platform_sha": (
+        "PASS  packed jq manifest linux-amd64 entry",
+        "PASS  packed jq all platforms sha256 match",
     ),
     # Registry dist.integrity (sha512) + dist.unpackedSize already proven by consumer.py (require BOTH).
     "registry_dist_extras": (
