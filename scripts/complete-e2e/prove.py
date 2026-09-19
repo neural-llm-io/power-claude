@@ -5,7 +5,7 @@
 a fail-closed receipt. Richer behavior.cases ids (packed_cli_help,
 packed_dual_bin_version, packed_artifact_sha256, packed_registry_integrity, packed_prices_contract, packed_feature_matrix_stamps, packed_jq_platform_sha, packed_cli_help_cluster, packed_bin_payload, packed_media_walkthrough, packed_pkg_meta, packed_engine_enc, packed_media_marketplace_assets, packed_icon_extension_js, packed_files_contract, packed_uninstall_hook, packed_brand_assets, packed_dual_bin_paths, packed_cli_emergency_on_help, packed_cli_halt_emergency_off_help, packed_prices_ladder_cache, packed_prices_pro_yearly, registry_pack_produced_tarball, registry_dist_extras, registry_dist_file_count, registry_metadata, registry_tarball_meta, registry_listing_meta, marketplace_api, marketplace_api_listing_meta, marketplace_api_short_description, marketplace_vsix_download,
 marketplace_asset_heads, marketplace_listing_links, open_vsx_vsix_download, open_vsx_asset_heads, open_vsx_icon_integrity, open_vsx_download_count, open_vsx_api_namespace_name, open_vsx_listing_meta,
-product_site_links, pricing_page_links, product_pricing_site_bodies, package_json_version, packed_changelog_present) are required for behavior_proven when prove succeeds.
+product_site_links, pricing_page_links, product_pricing_site_bodies, package_json_version, packed_changelog_present) plus browser_product_page (chrome DOM) are required for behavior_proven when prove succeeds.
 """
 from __future__ import annotations
 
@@ -148,8 +148,25 @@ def _build_receipt(
     readme: dict[str, Any],
     execute: dict[str, Any],
     execute_receipt: dict[str, Any] | None,
+    browser: dict[str, Any],
+    browser_receipt: dict[str, Any] | None,
     skipped_npm: bool,
 ) -> dict[str, Any]:
+    browser_case_ok = bool(browser.get("ok")) and bool(
+        browser_receipt and browser_receipt.get("ok")
+    )
+    browser_detail = ""
+    if browser_receipt:
+        bcases = (browser_receipt.get("behavior") or {}).get("cases") or []
+        for c in bcases:
+            if c.get("id") == "browser_product_page":
+                browser_detail = str(c.get("detail") or "")
+                browser_case_ok = browser_case_ok and bool(c.get("ok"))
+                break
+        if not browser_detail:
+            browser_detail = str(browser_receipt.get("environment_status") or browser.get("detail") or "")
+    else:
+        browser_detail = str(browser.get("detail") or "missing browser_product_prove receipt")
     cases: list[dict[str, Any]] = [
         {
             "id": "readme_media",
@@ -165,6 +182,11 @@ def _build_receipt(
                 else execute.get("detail") or ""
             )
             or (execute.get("detail") or ""),
+        },
+        {
+            "id": "browser_product_page",
+            "ok": bool(browser_case_ok),
+            "detail": browser_detail,
         },
     ]
 
@@ -192,16 +214,27 @@ def _build_receipt(
             )
 
     all_ok = bool(cases) and all(c["ok"] for c in cases)
-    blocked = (not all_ok) and _looks_blocked(
-        [
-            readme.get("stdout") or "",
-            readme.get("stderr") or "",
-            readme.get("detail") or "",
-            execute.get("stdout") or "",
-            execute.get("stderr") or "",
-            execute.get("detail") or "",
-            json.dumps(execute_receipt) if execute_receipt else "",
-        ]
+    browser_blocked = bool(
+        (browser_receipt or {}).get("blocked_environment")
+        or (browser_receipt or {}).get("environment_status") == "BLOCKED_ENVIRONMENT"
+    )
+    blocked = browser_blocked or (
+        (not all_ok)
+        and _looks_blocked(
+            [
+                readme.get("stdout") or "",
+                readme.get("stderr") or "",
+                readme.get("detail") or "",
+                execute.get("stdout") or "",
+                execute.get("stderr") or "",
+                execute.get("detail") or "",
+                json.dumps(execute_receipt) if execute_receipt else "",
+                browser.get("stdout") or "",
+                browser.get("stderr") or "",
+                browser.get("detail") or "",
+                json.dumps(browser_receipt) if browser_receipt else "",
+            ]
+        )
     )
     # Skip-npm is not a full live consumer prove — never greenwash as behavior_proven.
     rich_ok = all(
@@ -212,6 +245,7 @@ def _build_receipt(
         and not skipped_npm
         and any(c["id"] == "consumer_complete_e2e" and c["ok"] for c in cases)
         and any(c["id"] == "readme_media" and c["ok"] for c in cases)
+        and any(c["id"] == "browser_product_page" and c["ok"] for c in cases)
         and rich_ok
     )
     if blocked:
@@ -239,6 +273,7 @@ def _build_receipt(
         "behavior_proven": bool(behavior_proven and ok),
         "prover": (
             "scripts/complete-e2e/check_readme_media.py + "
+            "scripts/complete-e2e/browser_product_prove.py + "
             "scripts/complete-e2e/execute-consumer.py"
         ),
         "behavior": {
@@ -336,6 +371,18 @@ def _receipt_mode(argv: list[str]) -> int:
         if not str(readme["stderr"]).endswith("\n"):
             sys.stderr.write("\n")
 
+    # Fail-closed browser DOM prove (chrome dump-dom). Missing chrome → BLOCKED_ENVIRONMENT.
+    browser = _run_script(HERE / "browser_product_prove.py", [], env)
+    browser_receipt = _parse_execute_receipt(browser.get("stdout") or "")
+    print(
+        f"  {'PASS' if browser['ok'] else 'FAIL'}  browser_product_page: {browser['detail'][:120]}",
+        file=sys.stderr,
+    )
+    if browser.get("stderr"):
+        sys.stderr.write(browser["stderr"])
+        if not str(browser["stderr"]).endswith("\n"):
+            sys.stderr.write("\n")
+
     # Require live execute path (runs consumer; emits domain cases).
     execute = _run_script(HERE / "execute-consumer.py", [], env)
     execute_receipt = _parse_execute_receipt(execute.get("stdout") or "")
@@ -353,6 +400,8 @@ def _receipt_mode(argv: list[str]) -> int:
         readme=readme,
         execute=execute,
         execute_receipt=execute_receipt,
+        browser=browser,
+        browser_receipt=browser_receipt,
         skipped_npm=skipped_npm,
     )
     print("----------------------------------------", file=sys.stderr)
@@ -370,7 +419,7 @@ def main() -> int:
     a = set(argv)
     if a & {"-h", "--help"}:
         print(
-            "power-claude-prove: wraps execute-consumer + readme_media live proofs; "
+            "power-claude-prove: wraps execute-consumer + readme_media + browser_product_prove live proofs; "
             "use --receipt for fail-closed JSON receipt (stdout + .receipts/)"
         )
         return 0
