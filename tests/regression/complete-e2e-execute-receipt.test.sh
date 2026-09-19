@@ -83,6 +83,7 @@ named = {
     "pricing_page_links",
     "product_pricing_site_bodies",
     "package_json_version",
+    "packed_changelog_present",
 }
 assert named <= ids, ids
 assert all(c.get("ok") is True for c in cases if c.get("id") in named), cases
