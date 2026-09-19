@@ -6,7 +6,7 @@ not skip-npm, not tautology). Named behavior.cases map PASS lines from consumer 
 domain outcomes (subprocess CLI help, packed dual-bin --version, npm registry
 metadata, marketplace API, marketplace vsix HEAD, marketplace license/details/icon
 HEADs, open-vsx vsix download HEAD, open-vsx icon/license/readme/sha256 HEADs,
-open-vsx sha256 body + packed icon size integrity, open-vsx downloadCount, open-vsx displayName+description+listing links/timestamp, packed extension.js+bin sha256, packed tarball sha1+file count vs registry, registry dist.integrity+unpackedSize, registry dist.fileCount, registry tarball URL+shasum, registry homepage+repository+engines.node+bugs/description/keywords, marketplace api displayName+install+dates, marketplace api shortDescription, marketplace listing pricing+product links, product/pricing site cross-links, packed prices.default planPricing+apiPricing+claimMapping+communityFallbacks, packed feature-matrix core+extra stamps, packed jq linux-amd64+all-platforms sha256, packed CLI proof/doctor/rotation/resume/emergency/onboard/recommend --help cluster, packed bin ships cli/proxy/rotator/stop-classifier, packed media/walkthrough core guides, packed description+keywords+LICENSE, packed engine.enc size floor, packed media/marketplace assets count, packed media/icon.png+out/extension.js size, packed files[] entries present, packed out/uninstall-hook.js size, packed media/icon.svg+icon-activity.svg+brand badge.svg/css/html size floors, packed package.json bin pc+power-claude paths, packed CLI emergency-on --help, packed prices.default pro/max_* monthly ladder + apiPricing cache rates, packed CLI halt+emergency-off --help, packed prices.default pro yearly 200, registry pack produced tarball).
+open-vsx sha256 body + packed icon size integrity, open-vsx downloadCount, open-vsx displayName+description+listing links/timestamp, packed extension.js+bin sha256, packed tarball sha1+file count vs registry, registry dist.integrity+unpackedSize, registry dist.fileCount, registry tarball URL+shasum, registry homepage+repository+engines.node+bugs/description/keywords, marketplace api displayName+install+dates, marketplace api shortDescription, marketplace listing pricing+product links, product/pricing site cross-links, packed prices.default planPricing+apiPricing+claimMapping+communityFallbacks, packed feature-matrix core+extra stamps, packed jq linux-amd64+all-platforms sha256, packed CLI proof/doctor/rotation/resume/emergency/onboard/recommend --help cluster, packed bin ships cli/proxy/rotator/stop-classifier, packed media/walkthrough core guides, packed description+keywords+LICENSE, packed engine.enc size floor, packed media/marketplace assets count, packed media/icon.png+out/extension.js size, packed files[] entries present, packed out/uninstall-hook.js size, packed media/icon.svg+icon-activity.svg+brand badge.svg/css/html size floors, packed package.json bin pc+power-claude paths, packed CLI emergency-on --help, packed prices.default pro/max_* monthly ladder + apiPricing cache rates, packed CLI halt+emergency-off --help, packed prices.default pro yearly 200, registry pack produced tarball, product/pricing site body proves Power Claude).
 """
 from __future__ import annotations
 
@@ -239,6 +239,11 @@ CASE_MARKERS: dict[str, tuple[str, ...]] = {
         "PASS  pricing page links product",
         "PASS  pricing page links marketplace",
         "PASS  pricing page links open-vsx",
+    ),
+    # Product + pricing site bodies prove Power Claude already proven by consumer.py (require BOTH; NOT product_site_links / NOT pricing_page_links / NOT marketplace listing body).
+    "product_pricing_site_bodies": (
+        "PASS  product site body proves Power Claude",
+        "PASS  pricing page body proves Power Claude",
     ),
 }
 
