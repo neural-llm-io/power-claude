@@ -108,6 +108,7 @@ for rid in (
     "open_vsx_vsix_download",
     "open_vsx_asset_heads",
     "open_vsx_icon_integrity",
+    "open_vsx_download_count",
     "product_site_links",
     "pricing_page_links",
 ):
