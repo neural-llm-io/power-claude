@@ -6,7 +6,7 @@ not skip-npm, not tautology). Named behavior.cases map PASS lines from consumer 
 domain outcomes (subprocess CLI help, packed dual-bin --version, npm registry
 metadata, marketplace API, marketplace vsix HEAD, marketplace license/details/icon
 HEADs, open-vsx vsix download HEAD, open-vsx icon/license/readme/sha256 HEADs,
-open-vsx sha256 body + packed icon size integrity, open-vsx downloadCount, open-vsx displayName+description+listing links/timestamp, packed extension.js+bin sha256, packed tarball sha1+file count vs registry, registry dist.integrity+unpackedSize, registry dist.fileCount, marketplace api displayName+install+dates, marketplace listing pricing+product links, product/pricing site cross-links).
+open-vsx sha256 body + packed icon size integrity, open-vsx downloadCount, open-vsx displayName+description+listing links/timestamp, packed extension.js+bin sha256, packed tarball sha1+file count vs registry, registry dist.integrity+unpackedSize, registry dist.fileCount, registry homepage+repository+engines.node+bugs/description/keywords, marketplace api displayName+install+dates, marketplace listing pricing+product links, product/pricing site cross-links).
 """
 from __future__ import annotations
 
@@ -57,6 +57,16 @@ CASE_MARKERS: dict[str, tuple[str, ...]] = {
     "registry_metadata": (
         "PASS  registry metadata name/version/bin",
         "PASS  registry tarball HEAD",
+    ),
+    # Registry listing meta already proven by consumer.py (homepage+repository+engines+bugs/desc/keywords).
+    "registry_listing_meta": (
+        "PASS  registry homepage ",
+        "PASS  registry repository ",
+        "PASS  registry engines.node ",
+        "PASS  registry bugs URL",
+        "PASS  registry bugs email ",
+        "PASS  registry description value prop",
+        "PASS  registry keywords claude-code+vscode-extension",
     ),
     "marketplace_api": (
         "PASS  marketplace api publisher/name",
