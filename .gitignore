@@ -7,5 +7,6 @@ __pycache__/
 *.pyc
 .venv/
 
-# complete-e2e prove receipts (generated; never product source)
+# complete-e2e prove/execute receipts (generated; never product source)
+.receipts/
 scripts/complete-e2e/.receipts/
