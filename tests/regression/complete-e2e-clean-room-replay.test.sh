@@ -100,6 +100,7 @@ for rid in (
     "registry_dist_extras",
     "registry_dist_file_count",
     "registry_metadata",
+    "registry_listing_meta",
     "marketplace_api",
     "marketplace_api_listing_meta",
     "marketplace_vsix_download",
