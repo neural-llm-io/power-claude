@@ -100,6 +100,7 @@ for rid in (
     "packed_media_walkthrough",
     "packed_pkg_meta",
     "packed_engine_enc",
+    "packed_media_marketplace_assets",
     "packed_artifact_sha256",
     "packed_registry_integrity",
     "packed_prices_contract",
