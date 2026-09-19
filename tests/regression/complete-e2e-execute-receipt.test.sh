@@ -45,6 +45,7 @@ named = {
     "packed_dual_bin_version",
     "packed_dual_bin_paths",
     "packed_cli_emergency_on_help",
+    "packed_cli_halt_emergency_off_help",
     "packed_bin_payload",
     "packed_media_walkthrough",
     "packed_pkg_meta",
