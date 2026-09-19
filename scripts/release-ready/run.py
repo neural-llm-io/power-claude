@@ -2,9 +2,12 @@
 """release-ready gate for public power-claude mirror."""
 # Never ALLOW_UNPROVEN. Never fake CERTIFIED.
 from __future__ import annotations
+import json
 import os
 import shutil
 import subprocess
+import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -38,12 +41,98 @@ def run_gate(label: str, script: str, extra_args: list[str] | None = None) -> bo
     fail_(label)
     return False
 
+def refuse_skip_flags() -> bool:
+    """Fail closed if skip / unproven bypass flags are present."""
+    print("Gate -- refuse skip / unproven bypass flags")
+    bad = []
+    skip_key = "PC_SKIP_NPM"
+    allow_key = "ALLOW_UNPROVEN"
+    if os.environ.get(skip_key) == "1":
+        bad.append(skip_key + "=1")
+    if os.environ.get(allow_key) == "1":
+        bad.append(allow_key + "=1")
+    argv = set(sys.argv[1:])
+    for flag in (
+        "--skip-npm",
+        "--skip",
+        "--allow-unproven",
+        skip_key + "=1",
+        allow_key + "=1",
+    ):
+        if flag in argv:
+            bad.append("argv:" + flag)
+    if bad:
+        fail_("refused skip/bypass: " + ", ".join(bad))
+        return False
+    pass_("no " + skip_key + " / " + allow_key + " / --skip* bypass")
+    return True
+
+def run_prove_receipt() -> bool:
+    """Invoke prove --receipt; fail unless ok==true and behavior_proven==true."""
+    print("Gate -- prove --receipt (ok + behavior_proven)")
+    prove = ROOT / "scripts/complete-e2e/prove.py"
+    if not prove.is_file():
+        fail_("prove.py missing")
+        return False
+    env = os.environ.copy()
+    env["PYTHONDONTWRITEBYTECODE"] = "1"
+    # Never greenwash a partial prove under release-ready.
+    env.pop("PC_SKIP_NPM", None)
+    env.pop("ALLOW_UNPROVEN", None)
+    with tempfile.TemporaryDirectory(prefix="pc-rr-prove-") as td:
+        out = Path(td) / "receipt.json"
+        r = subprocess.run(
+            [sys.executable, str(prove), "--receipt", "--out", str(out)],
+            cwd=str(ROOT),
+            env=env,
+            capture_output=True,
+            text=True,
+        )
+        if r.stderr:
+            sys.stderr.write(r.stderr)
+            if not r.stderr.endswith("\n"):
+                sys.stderr.write("\n")
+        receipt = None
+        if out.is_file():
+            try:
+                receipt = json.loads(out.read_text(encoding="utf-8"))
+            except json.JSONDecodeError as e:
+                fail_("prove receipt JSON invalid: " + str(e))
+                return False
+        if receipt is None:
+            # Fallback: parse stdout JSON (prove emits receipt on stdout).
+            try:
+                receipt = json.loads((r.stdout or "").strip() or "{}")
+            except json.JSONDecodeError:
+                fail_("prove --receipt produced no parseable receipt")
+                return False
+        ok = receipt.get("ok")
+        proven = receipt.get("behavior_proven")
+        if ok is not True or proven is not True:
+            fail_(
+                "prove receipt ok!=true or behavior_proven!=true "
+                "(ok={!r} behavior_proven={!r} env={!r})".format(
+                    ok, proven, receipt.get("environment_status")
+                )
+            )
+            return False
+        if r.returncode != 0:
+            fail_("prove --receipt exited " + str(r.returncode) + " despite ok receipt")
+            return False
+        pass_("prove --receipt ok=true behavior_proven=true")
+        return True
+
 def main() -> int:
     print("power-claude release-ready")
     print("----------------------------------------")
     print("Policy: never ALLOW_UNPROVEN; never fake CERTIFIED")
     purge_bytecode()
     ok = True
+    if not refuse_skip_flags():
+        # Fail closed immediately — do not clear skip and greenwash later gates.
+        print("----------------------------------------")
+        print("RELEASE_READY: FAIL")
+        return 1
     print("Gate -- policy scan (no ALLOW_UNPROVEN / fake CERTIFIED)")
     banned = []
     for path in sorted((ROOT / "scripts").rglob("*")):
@@ -76,6 +165,10 @@ def main() -> int:
         ok = False
     purge_bytecode()
     if not run_gate("verify", "scripts/verify/run.sh"):
+        ok = False
+    purge_bytecode()
+    # Fail-closed attestation: release-ready must not greenwash without prove receipt.
+    if not run_prove_receipt():
         ok = False
     purge_bytecode()
     print("----------------------------------------")
