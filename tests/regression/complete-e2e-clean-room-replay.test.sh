@@ -101,6 +101,7 @@ for rid in (
     "registry_dist_file_count",
     "registry_metadata",
     "marketplace_api",
+    "marketplace_api_listing_meta",
     "marketplace_vsix_download",
     "marketplace_asset_heads",
     "marketplace_listing_links",
