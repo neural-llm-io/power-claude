@@ -44,6 +44,7 @@ named = {
     "packed_dual_bin_version",
     "packed_artifact_sha256",
     "packed_registry_integrity",
+    "registry_dist_extras",
     "registry_metadata",
     "marketplace_api",
     "marketplace_vsix_download",
