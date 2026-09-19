@@ -115,6 +115,7 @@ for rid in (
     "packed_prices_pro_yearly",
     "packed_feature_matrix_stamps",
     "packed_jq_platform_sha",
+    "registry_pack_produced_tarball",
     "registry_dist_extras",
     "registry_dist_file_count",
     "registry_metadata",
