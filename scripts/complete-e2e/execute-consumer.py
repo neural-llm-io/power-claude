@@ -6,7 +6,7 @@ not skip-npm, not tautology). Named behavior.cases map PASS lines from consumer 
 domain outcomes (subprocess CLI help, packed dual-bin --version, npm registry
 metadata, marketplace API, marketplace vsix HEAD, marketplace license/details/icon
 HEADs, open-vsx vsix download HEAD, open-vsx icon/license/readme/sha256 HEADs,
-open-vsx sha256 body + packed icon size integrity, open-vsx downloadCount, open-vsx displayName+description+listing links/timestamp, packed extension.js+bin sha256, packed tarball sha1+file count vs registry, registry dist.integrity+unpackedSize, registry dist.fileCount, registry tarball URL+shasum, registry homepage+repository+engines.node+bugs/description/keywords, marketplace api displayName+install+dates, marketplace api shortDescription, marketplace listing pricing+product links, product/pricing site cross-links, packed prices.default planPricing+apiPricing+claimMapping+communityFallbacks).
+open-vsx sha256 body + packed icon size integrity, open-vsx downloadCount, open-vsx displayName+description+listing links/timestamp, packed extension.js+bin sha256, packed tarball sha1+file count vs registry, registry dist.integrity+unpackedSize, registry dist.fileCount, registry tarball URL+shasum, registry homepage+repository+engines.node+bugs/description/keywords, marketplace api displayName+install+dates, marketplace api shortDescription, marketplace listing pricing+product links, product/pricing site cross-links, packed prices.default planPricing+apiPricing+claimMapping+communityFallbacks, packed feature-matrix core+extra stamps).
 """
 from __future__ import annotations
 
@@ -51,6 +51,11 @@ CASE_MARKERS: dict[str, tuple[str, ...]] = {
         "PASS  packed prices.default apiPricing models",
         "PASS  packed prices.default claimMapping periods",
         "PASS  packed prices.default communityFallbacks 5x/20x",
+    ),
+    # Packed feature-matrix core+extra stamps already proven by consumer.py (require BOTH).
+    "packed_feature_matrix_stamps": (
+        "PASS  packed feature-matrix core stamps",
+        "PASS  packed feature-matrix extra stamps",
     ),
     # Registry dist.integrity (sha512) + dist.unpackedSize already proven by consumer.py (require BOTH).
     "registry_dist_extras": (
