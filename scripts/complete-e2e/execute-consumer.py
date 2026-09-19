@@ -6,7 +6,7 @@ not skip-npm, not tautology). Named behavior.cases map PASS lines from consumer 
 domain outcomes (subprocess CLI help, packed dual-bin --version, npm registry
 metadata, marketplace API, marketplace vsix HEAD, marketplace license/details/icon
 HEADs, open-vsx vsix download HEAD, open-vsx icon/license/readme/sha256 HEADs,
-open-vsx sha256 body + packed icon size integrity, open-vsx downloadCount, packed extension.js+bin sha256, packed tarball sha1+file count vs registry, registry dist.integrity+unpackedSize, registry dist.fileCount, marketplace api displayName+install+dates, marketplace listing pricing+product links, product/pricing site cross-links).
+open-vsx sha256 body + packed icon size integrity, open-vsx downloadCount, open-vsx displayName+description+listing links/timestamp, packed extension.js+bin sha256, packed tarball sha1+file count vs registry, registry dist.integrity+unpackedSize, registry dist.fileCount, marketplace api displayName+install+dates, marketplace listing pricing+product links, product/pricing site cross-links).
 """
 from __future__ import annotations
 
@@ -102,6 +102,15 @@ CASE_MARKERS: dict[str, tuple[str, ...]] = {
     # Open VSX downloadCount already proven by consumer.py (exact substring).
     "open_vsx_download_count": (
         "PASS  open-vsx downloadCount ",
+    ),
+    # Open VSX listing meta already proven by consumer.py (displayName+description+links/timestamp).
+    "open_vsx_listing_meta": (
+        "PASS  open-vsx displayName ",
+        "PASS  open-vsx description",
+        "PASS  open-vsx homepage ",
+        "PASS  open-vsx repository ",
+        "PASS  open-vsx bugs URL",
+        "PASS  open-vsx timestamp ",
     ),
     "product_site_links": (
         "PASS  product site links pricing",
