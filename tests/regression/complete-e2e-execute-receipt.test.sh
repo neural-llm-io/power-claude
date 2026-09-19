@@ -45,6 +45,7 @@ named = {
     "packed_artifact_sha256",
     "packed_registry_integrity",
     "registry_dist_extras",
+    "registry_dist_file_count",
     "registry_metadata",
     "marketplace_api",
     "marketplace_vsix_download",

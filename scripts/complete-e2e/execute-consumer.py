@@ -6,7 +6,7 @@ not skip-npm, not tautology). Named behavior.cases map PASS lines from consumer 
 domain outcomes (subprocess CLI help, packed dual-bin --version, npm registry
 metadata, marketplace API, marketplace vsix HEAD, marketplace license/details/icon
 HEADs, open-vsx vsix download HEAD, open-vsx icon/license/readme/sha256 HEADs,
-open-vsx sha256 body + packed icon size integrity, packed extension.js+bin sha256, packed tarball sha1+file count vs registry, registry dist.integrity+unpackedSize, marketplace listing pricing+product links, product/pricing site cross-links).
+open-vsx sha256 body + packed icon size integrity, packed extension.js+bin sha256, packed tarball sha1+file count vs registry, registry dist.integrity+unpackedSize, registry dist.fileCount, marketplace listing pricing+product links, product/pricing site cross-links).
 """
 from __future__ import annotations
 
@@ -49,6 +49,10 @@ CASE_MARKERS: dict[str, tuple[str, ...]] = {
     "registry_dist_extras": (
         "PASS  registry dist.integrity sha512",
         "PASS  registry dist.unpackedSize ",
+    ),
+    # Registry dist.fileCount already proven by consumer.py (exact substring).
+    "registry_dist_file_count": (
+        "PASS  registry dist.fileCount ",
     ),
     "registry_metadata": (
         "PASS  registry metadata name/version/bin",
