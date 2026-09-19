@@ -6,7 +6,7 @@ not skip-npm, not tautology). Named behavior.cases map PASS lines from consumer 
 domain outcomes (subprocess CLI help, packed dual-bin --version, npm registry
 metadata, marketplace API, marketplace vsix HEAD, marketplace license/details/icon
 HEADs, open-vsx vsix download HEAD, open-vsx icon/license/readme/sha256 HEADs,
-open-vsx sha256 body + packed icon size integrity, open-vsx downloadCount, open-vsx displayName+description+listing links/timestamp, packed extension.js+bin sha256, packed tarball sha1+file count vs registry, registry dist.integrity+unpackedSize, registry dist.fileCount, registry tarball URL+shasum, registry homepage+repository+engines.node+bugs/description/keywords, marketplace api displayName+install+dates, marketplace api shortDescription, marketplace listing pricing+product links, product/pricing site cross-links).
+open-vsx sha256 body + packed icon size integrity, open-vsx downloadCount, open-vsx displayName+description+listing links/timestamp, packed extension.js+bin sha256, packed tarball sha1+file count vs registry, registry dist.integrity+unpackedSize, registry dist.fileCount, registry tarball URL+shasum, registry homepage+repository+engines.node+bugs/description/keywords, marketplace api displayName+install+dates, marketplace api shortDescription, marketplace listing pricing+product links, product/pricing site cross-links, packed prices.default planPricing+apiPricing+claimMapping+communityFallbacks).
 """
 from __future__ import annotations
 
@@ -44,6 +44,13 @@ CASE_MARKERS: dict[str, tuple[str, ...]] = {
     "packed_registry_integrity": (
         "PASS  packed tarball sha1 matches registry",
         "PASS  packed file count matches registry",
+    ),
+    # Packed prices.default contract already proven by consumer.py (plan ladder + api models + claims + 5x/20x).
+    "packed_prices_contract": (
+        "PASS  packed prices.default planPricing pro/max",
+        "PASS  packed prices.default apiPricing models",
+        "PASS  packed prices.default claimMapping periods",
+        "PASS  packed prices.default communityFallbacks 5x/20x",
     ),
     # Registry dist.integrity (sha512) + dist.unpackedSize already proven by consumer.py (require BOTH).
     "registry_dist_extras": (
