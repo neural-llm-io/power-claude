@@ -96,6 +96,7 @@ for rid in (
     "packed_cli_help",
     "packed_cli_help_cluster",
     "packed_dual_bin_version",
+    "packed_bin_payload",
     "packed_artifact_sha256",
     "packed_registry_integrity",
     "packed_prices_contract",
