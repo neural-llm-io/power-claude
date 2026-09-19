@@ -135,6 +135,7 @@ for rid in (
     "product_site_links",
     "pricing_page_links",
     "product_pricing_site_bodies",
+    "package_json_version",
 ):
     assert rid in ids, ids
 assert all(c.get("ok") is True for c in cases), cases
