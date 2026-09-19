@@ -6,7 +6,7 @@ not skip-npm, not tautology). Named behavior.cases map PASS lines from consumer 
 domain outcomes (subprocess CLI help, packed dual-bin --version, npm registry
 metadata, marketplace API, marketplace vsix HEAD, marketplace license/details/icon
 HEADs, open-vsx vsix download HEAD, open-vsx icon/license/readme/sha256 HEADs,
-open-vsx sha256 body + packed icon size integrity, open-vsx downloadCount, open-vsx displayName+description+listing links/timestamp, packed extension.js+bin sha256, packed tarball sha1+file count vs registry, registry dist.integrity+unpackedSize, registry dist.fileCount, registry tarball URL+shasum, registry homepage+repository+engines.node+bugs/description/keywords, marketplace api displayName+install+dates, marketplace api shortDescription, marketplace listing pricing+product links, product/pricing site cross-links, packed prices.default planPricing+apiPricing+claimMapping+communityFallbacks, packed feature-matrix core+extra stamps, packed jq linux-amd64+all-platforms sha256, packed CLI proof/doctor/rotation/resume/emergency/onboard/recommend --help cluster, packed bin ships cli/proxy/rotator/stop-classifier, packed media/walkthrough core guides, packed description+keywords+LICENSE, packed engine.enc size floor, packed media/marketplace assets count, packed media/icon.png+out/extension.js size, packed files[] entries present, packed out/uninstall-hook.js size, packed media/icon.svg+icon-activity.svg+brand badge.svg/css/html size floors).
+open-vsx sha256 body + packed icon size integrity, open-vsx downloadCount, open-vsx displayName+description+listing links/timestamp, packed extension.js+bin sha256, packed tarball sha1+file count vs registry, registry dist.integrity+unpackedSize, registry dist.fileCount, registry tarball URL+shasum, registry homepage+repository+engines.node+bugs/description/keywords, marketplace api displayName+install+dates, marketplace api shortDescription, marketplace listing pricing+product links, product/pricing site cross-links, packed prices.default planPricing+apiPricing+claimMapping+communityFallbacks, packed feature-matrix core+extra stamps, packed jq linux-amd64+all-platforms sha256, packed CLI proof/doctor/rotation/resume/emergency/onboard/recommend --help cluster, packed bin ships cli/proxy/rotator/stop-classifier, packed media/walkthrough core guides, packed description+keywords+LICENSE, packed engine.enc size floor, packed media/marketplace assets count, packed media/icon.png+out/extension.js size, packed files[] entries present, packed out/uninstall-hook.js size, packed media/icon.svg+icon-activity.svg+brand badge.svg/css/html size floors, packed package.json bin pc+power-claude paths).
 """
 from __future__ import annotations
 
@@ -44,6 +44,11 @@ CASE_MARKERS: dict[str, tuple[str, ...]] = {
     "packed_dual_bin_version": (
         "PASS  packed CLI --version matches ",
         "PASS  packed power-claude --version matches ",
+    ),
+    # Dual-bin packed paths: package.json bin has pc+power-claude + power-claude bin path present (NOT version identity).
+    "packed_dual_bin_paths": (
+        "PASS  package.json bin has pc + power-claude",
+        "PASS  packed power-claude bin path present",
     ),
     # Packed bin payload: cli/proxy/rotator/stop-classifier already proven by consumer.py.
     "packed_bin_payload": (
