@@ -101,6 +101,7 @@ for rid in (
     "packed_pkg_meta",
     "packed_engine_enc",
     "packed_media_marketplace_assets",
+    "packed_icon_extension_js",
     "packed_artifact_sha256",
     "packed_registry_integrity",
     "packed_prices_contract",
