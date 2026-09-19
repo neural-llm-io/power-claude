@@ -57,6 +57,7 @@ named = {
     "packed_artifact_sha256",
     "packed_registry_integrity",
     "packed_prices_contract",
+    "packed_prices_ladder_cache",
     "packed_feature_matrix_stamps",
     "packed_jq_platform_sha",
     "registry_dist_extras",
