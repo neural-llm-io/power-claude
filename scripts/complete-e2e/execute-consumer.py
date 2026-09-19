@@ -6,7 +6,7 @@ not skip-npm, not tautology). Named behavior.cases map PASS lines from consumer 
 domain outcomes (subprocess CLI help, packed dual-bin --version, npm registry
 metadata, marketplace API, marketplace vsix HEAD, marketplace license/details/icon
 HEADs, open-vsx vsix download HEAD, open-vsx icon/license/readme/sha256 HEADs,
-open-vsx sha256 body + packed icon size integrity, open-vsx downloadCount, open-vsx displayName+description+listing links/timestamp, packed extension.js+bin sha256, packed tarball sha1+file count vs registry, registry dist.integrity+unpackedSize, registry dist.fileCount, registry tarball URL+shasum, registry homepage+repository+engines.node+bugs/description/keywords, marketplace api displayName+install+dates, marketplace api shortDescription, marketplace listing pricing+product links, product/pricing site cross-links, packed prices.default planPricing+apiPricing+claimMapping+communityFallbacks, packed feature-matrix core+extra stamps, packed jq linux-amd64+all-platforms sha256, packed CLI proof/doctor/rotation/resume/emergency/onboard/recommend --help cluster, packed bin ships cli/proxy/rotator/stop-classifier, packed media/walkthrough core guides, packed description+keywords+LICENSE, packed engine.enc size floor, packed media/marketplace assets count).
+open-vsx sha256 body + packed icon size integrity, open-vsx downloadCount, open-vsx displayName+description+listing links/timestamp, packed extension.js+bin sha256, packed tarball sha1+file count vs registry, registry dist.integrity+unpackedSize, registry dist.fileCount, registry tarball URL+shasum, registry homepage+repository+engines.node+bugs/description/keywords, marketplace api displayName+install+dates, marketplace api shortDescription, marketplace listing pricing+product links, product/pricing site cross-links, packed prices.default planPricing+apiPricing+claimMapping+communityFallbacks, packed feature-matrix core+extra stamps, packed jq linux-amd64+all-platforms sha256, packed CLI proof/doctor/rotation/resume/emergency/onboard/recommend --help cluster, packed bin ships cli/proxy/rotator/stop-classifier, packed media/walkthrough core guides, packed description+keywords+LICENSE, packed engine.enc size floor, packed media/marketplace assets count, packed media/icon.png+out/extension.js size).
 """
 from __future__ import annotations
 
@@ -67,6 +67,11 @@ CASE_MARKERS: dict[str, tuple[str, ...]] = {
     # Packed media/marketplace assets count floor already proven by consumer.py (exact PASS substring).
     "packed_media_marketplace_assets": (
         "PASS  packed media/marketplace assets ",
+    ),
+    # Packed media/icon.png + out/extension.js size floors already proven by consumer.py (require BOTH).
+    "packed_icon_extension_js": (
+        "PASS  packed media/icon.png ",
+        "PASS  packed out/extension.js ",
     ),
     # Packed extension.js + bin sha256 already proven by consumer.py (require BOTH).
     "packed_artifact_sha256": (
