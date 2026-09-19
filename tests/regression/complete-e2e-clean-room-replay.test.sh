@@ -97,6 +97,7 @@ for rid in (
     "packed_dual_bin_version",
     "packed_artifact_sha256",
     "packed_registry_integrity",
+    "packed_prices_contract",
     "registry_dist_extras",
     "registry_dist_file_count",
     "registry_metadata",

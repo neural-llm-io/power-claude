@@ -37,7 +37,7 @@ assert stdout_receipt.get("blocked_environment") is False, stdout_receipt
 assert stdout_receipt.get("environment_status") == "live", stdout_receipt
 assert stdout_receipt.get("schema") == "hurc-complete-e2e-power-claude-prove/v1", stdout_receipt
 cases = stdout_receipt.get("behavior", {}).get("cases")
-assert isinstance(cases, list) and len(cases) >= 24, cases
+assert isinstance(cases, list) and len(cases) >= 25, cases
 ids = {c.get("id") for c in cases}
 assert "readme_media" in ids and "consumer_complete_e2e" in ids, ids
 for rid in (
@@ -45,6 +45,7 @@ for rid in (
     "packed_dual_bin_version",
     "packed_artifact_sha256",
     "packed_registry_integrity",
+    "packed_prices_contract",
     "registry_dist_extras",
     "registry_dist_file_count",
     "registry_metadata",
@@ -83,7 +84,7 @@ assert exec_adapter.get("argv") == ["python3", "scripts/complete-e2e/execute-con
 print(
     "PASS complete-e2e-prove-receipt: ok=true behavior_proven=true live cases "
     "readme_media+consumer_complete_e2e+packed_cli_help+packed_dual_bin_version+"
-    "packed_artifact_sha256+packed_registry_integrity+registry_dist_extras+registry_dist_file_count+registry_metadata+registry_tarball_meta+registry_listing_meta+marketplace_api+marketplace_api_listing_meta+marketplace_api_short_description+marketplace_vsix_download+marketplace_asset_heads+marketplace_listing_links+"
+    "packed_artifact_sha256+packed_registry_integrity+packed_prices_contract+registry_dist_extras+registry_dist_file_count+registry_metadata+registry_tarball_meta+registry_listing_meta+marketplace_api+marketplace_api_listing_meta+marketplace_api_short_description+marketplace_vsix_download+marketplace_asset_heads+marketplace_listing_links+"
     "open_vsx_vsix_download+open_vsx_asset_heads+open_vsx_icon_integrity+open_vsx_download_count+open_vsx_listing_meta+product_site_links+pricing_page_links"
 )
 PY
