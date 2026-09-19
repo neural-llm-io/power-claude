@@ -161,7 +161,7 @@ def main() -> int:
     if not run_gate("enforce --fix", "scripts/enforce/run.sh", ["--fix"]):
         ok = False
     purge_bytecode()
-    if not run_gate("tidy --full", "scripts/tidy/run.sh"):
+    if not run_gate("tidy --full", "scripts/tidy/run.sh", ["--full"]):
         ok = False
     purge_bytecode()
     if not run_gate("verify", "scripts/verify/run.sh"):
