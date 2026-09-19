@@ -4,7 +4,7 @@
 --receipt runs readme_media + execute-consumer (live consumer domain cases) and emits
 a fail-closed receipt. Richer behavior.cases ids (packed_cli_help,
 packed_dual_bin_version, packed_artifact_sha256, packed_registry_integrity, registry_dist_extras, registry_dist_file_count, registry_metadata, marketplace_api, marketplace_api_listing_meta, marketplace_vsix_download,
-marketplace_asset_heads, marketplace_listing_links, open_vsx_vsix_download, open_vsx_asset_heads, open_vsx_icon_integrity, open_vsx_download_count,
+marketplace_asset_heads, marketplace_listing_links, open_vsx_vsix_download, open_vsx_asset_heads, open_vsx_icon_integrity, open_vsx_download_count, open_vsx_listing_meta,
 product_site_links, pricing_page_links) are required for behavior_proven when prove succeeds.
 """
 from __future__ import annotations
@@ -40,6 +40,7 @@ RICH_CASE_IDS = (
     "open_vsx_asset_heads",
     "open_vsx_icon_integrity",
     "open_vsx_download_count",
+    "open_vsx_listing_meta",
     "product_site_links",
     "pricing_page_links",
 )
