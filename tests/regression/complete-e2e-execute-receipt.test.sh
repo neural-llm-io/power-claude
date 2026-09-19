@@ -44,6 +44,7 @@ named = {
     "packed_cli_help_cluster",
     "packed_dual_bin_version",
     "packed_bin_payload",
+    "packed_media_walkthrough",
     "packed_artifact_sha256",
     "packed_registry_integrity",
     "packed_prices_contract",
