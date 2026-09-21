@@ -73,7 +73,6 @@ RICH_CASE_IDS = (
 
 BLOCK_MARKERS = (
     "URLError",
-    "HTTPError",
     "timed out",
     "Temporary failure in name resolution",
     "Network is unreachable",

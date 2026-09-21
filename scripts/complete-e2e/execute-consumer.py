@@ -262,7 +262,6 @@ CASE_MARKERS: dict[str, tuple[str, ...]] = {
 
 BLOCK_MARKERS = (
     "URLError",
-    "HTTPError",
     "timed out",
     "Temporary failure in name resolution",
     "Network is unreachable",
