@@ -24,6 +24,86 @@ def purge_bytecode() -> None:
         elif p.suffix == ".pyc" and p.is_file():
             p.unlink(missing_ok=True)
 
+# Generated prove/execute/browser receipts (never product source).
+# prove --receipt always writes canonical scripts/complete-e2e/.receipts/
+# even on prove_failed — must purge after the post-tidy prove gate.
+RECEIPT_DIR_NAMES = (".receipts",)
+KNOWN_RECEIPT_NAMES = (
+    "prove-receipt.json",
+    "execute-receipt.json",
+    "browser-product-prove-receipt.json",
+    "browser-pricing-prove-receipt.json",
+    "browser-openvsx-prove-receipt.json",
+)
+
+
+def _skip_git(p: Path) -> bool:
+    return ".git" in p.parts
+
+
+def _iter_receipt_dirs() -> list[Path]:
+    dirs: list[Path] = []
+    for p in ROOT.rglob("*"):
+        if _skip_git(p):
+            continue
+        if p.is_dir() and p.name in RECEIPT_DIR_NAMES:
+            dirs.append(p)
+    canonical = ROOT / "scripts" / "complete-e2e" / ".receipts"
+    if canonical not in dirs and canonical.is_dir():
+        dirs.append(canonical)
+    return dirs
+
+
+def _find_leftover_receipts() -> list[Path]:
+    found: list[Path] = []
+    for d in _iter_receipt_dirs():
+        if not d.is_dir():
+            continue
+        for p in sorted(d.rglob("*")):
+            if p.is_file():
+                found.append(p)
+    for name in KNOWN_RECEIPT_NAMES:
+        for p in ROOT.rglob(name):
+            if _skip_git(p):
+                continue
+            if p.is_file() and p not in found:
+                found.append(p)
+    return found
+
+
+def _remove_path(p: Path) -> None:
+    if p.is_dir():
+        shutil.rmtree(p, ignore_errors=True)
+    elif p.exists():
+        p.unlink(missing_ok=True)
+
+
+def purge_leftover_receipts() -> bool:
+    """Purge prove leftovers written after tidy. Fail-closed if any remain."""
+    print("Gate -- post-prove leftover receipt purge")
+    found = _find_leftover_receipts()
+    if not found:
+        pass_("no leftover .receipts after prove")
+        return True
+    for p in found:
+        rel = str(p.relative_to(ROOT))
+        _remove_path(p)
+        print("  FIX   removed " + rel, flush=True)
+    for d in _iter_receipt_dirs():
+        if d.is_dir() and not any(d.iterdir()):
+            _remove_path(d)
+            print("  FIX   removed empty " + str(d.relative_to(ROOT)), flush=True)
+    leftover = _find_leftover_receipts()
+    if leftover:
+        fail_(
+            "post-prove receipts remain: "
+            + ", ".join(str(x.relative_to(ROOT)) for x in leftover[:8])
+        )
+        return False
+    pass_("post-prove leftover receipts purged")
+    return True
+
+
 def run_gate(label: str, script: str, extra_args: list[str] | None = None) -> bool:
     path = ROOT / script
     print("Gate -- " + label)
@@ -168,7 +248,12 @@ def main() -> int:
         ok = False
     purge_bytecode()
     # Fail-closed attestation: release-ready must not greenwash without prove receipt.
+    # prove --receipt writes canonical .receipts/ even on prove_failed; tidy already
+    # ran earlier, so leftovers would dirty the tree / greenwash a later tidy check.
     if not run_prove_receipt():
+        ok = False
+    # Always purge — valuable on prove_failed path (marketplace 404 stays honest FAIL).
+    if not purge_leftover_receipts():
         ok = False
     purge_bytecode()
     print("----------------------------------------")
