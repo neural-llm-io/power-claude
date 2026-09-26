@@ -5,7 +5,7 @@
 a fail-closed receipt. Richer behavior.cases ids (packed_cli_help,
 packed_dual_bin_version, packed_artifact_sha256, packed_registry_integrity, packed_prices_contract, packed_feature_matrix_stamps, packed_jq_platform_sha, packed_cli_help_cluster, packed_bin_payload, packed_media_walkthrough, packed_pkg_meta, packed_engine_enc, packed_media_marketplace_assets, packed_icon_extension_js, packed_files_contract, packed_uninstall_hook, packed_brand_assets, packed_dual_bin_paths, packed_cli_emergency_on_help, packed_cli_halt_emergency_off_help, packed_prices_ladder_cache, packed_prices_pro_yearly, registry_pack_produced_tarball, registry_dist_extras, registry_dist_file_count, registry_metadata, registry_tarball_meta, registry_listing_meta, marketplace_api, marketplace_api_listing_meta, marketplace_api_short_description, marketplace_vsix_download,
 marketplace_asset_heads, marketplace_listing_links, open_vsx_vsix_download, open_vsx_asset_heads, open_vsx_icon_integrity, open_vsx_download_count, open_vsx_api_namespace_name, open_vsx_listing_meta,
-product_site_links, pricing_page_links, product_pricing_site_bodies, package_json_version, packed_changelog_present) plus browser_product_page (chrome DOM) are required for behavior_proven when prove succeeds.
+product_site_links, pricing_page_links, product_pricing_site_bodies, package_json_version, packed_changelog_present) plus browser_product_page + browser_pricing_page (chrome DOM) are required for behavior_proven when prove succeeds.
 """
 from __future__ import annotations
 
@@ -149,23 +149,44 @@ def _build_receipt(
     execute_receipt: dict[str, Any] | None,
     browser: dict[str, Any],
     browser_receipt: dict[str, Any] | None,
+    browser_pricing: dict[str, Any],
+    browser_pricing_receipt: dict[str, Any] | None,
     skipped_npm: bool,
 ) -> dict[str, Any]:
-    browser_case_ok = bool(browser.get("ok")) and bool(
-        browser_receipt and browser_receipt.get("ok")
+    def _browser_case(
+        *,
+        case_id: str,
+        run: dict[str, Any],
+        receipt: dict[str, Any] | None,
+        missing_label: str,
+    ) -> tuple[bool, str]:
+        case_ok = bool(run.get("ok")) and bool(receipt and receipt.get("ok"))
+        detail = ""
+        if receipt:
+            bcases = (receipt.get("behavior") or {}).get("cases") or []
+            for c in bcases:
+                if c.get("id") == case_id:
+                    detail = str(c.get("detail") or "")
+                    case_ok = case_ok and bool(c.get("ok"))
+                    break
+            if not detail:
+                detail = str(receipt.get("environment_status") or run.get("detail") or "")
+        else:
+            detail = str(run.get("detail") or missing_label)
+        return case_ok, detail
+
+    browser_case_ok, browser_detail = _browser_case(
+        case_id="browser_product_page",
+        run=browser,
+        receipt=browser_receipt,
+        missing_label="missing browser_product_prove receipt",
     )
-    browser_detail = ""
-    if browser_receipt:
-        bcases = (browser_receipt.get("behavior") or {}).get("cases") or []
-        for c in bcases:
-            if c.get("id") == "browser_product_page":
-                browser_detail = str(c.get("detail") or "")
-                browser_case_ok = browser_case_ok and bool(c.get("ok"))
-                break
-        if not browser_detail:
-            browser_detail = str(browser_receipt.get("environment_status") or browser.get("detail") or "")
-    else:
-        browser_detail = str(browser.get("detail") or "missing browser_product_prove receipt")
+    pricing_case_ok, pricing_detail = _browser_case(
+        case_id="browser_pricing_page",
+        run=browser_pricing,
+        receipt=browser_pricing_receipt,
+        missing_label="missing browser_pricing_prove receipt",
+    )
     cases: list[dict[str, Any]] = [
         {
             "id": "readme_media",
@@ -186,6 +207,11 @@ def _build_receipt(
             "id": "browser_product_page",
             "ok": bool(browser_case_ok),
             "detail": browser_detail,
+        },
+        {
+            "id": "browser_pricing_page",
+            "ok": bool(pricing_case_ok),
+            "detail": pricing_detail,
         },
     ]
 
@@ -216,6 +242,8 @@ def _build_receipt(
     browser_blocked = bool(
         (browser_receipt or {}).get("blocked_environment")
         or (browser_receipt or {}).get("environment_status") == "BLOCKED_ENVIRONMENT"
+        or (browser_pricing_receipt or {}).get("blocked_environment")
+        or (browser_pricing_receipt or {}).get("environment_status") == "BLOCKED_ENVIRONMENT"
     )
     blocked = browser_blocked or (
         (not all_ok)
@@ -232,6 +260,10 @@ def _build_receipt(
                 browser.get("stderr") or "",
                 browser.get("detail") or "",
                 json.dumps(browser_receipt) if browser_receipt else "",
+                browser_pricing.get("stdout") or "",
+                browser_pricing.get("stderr") or "",
+                browser_pricing.get("detail") or "",
+                json.dumps(browser_pricing_receipt) if browser_pricing_receipt else "",
             ]
         )
     )
@@ -245,6 +277,7 @@ def _build_receipt(
         and any(c["id"] == "consumer_complete_e2e" and c["ok"] for c in cases)
         and any(c["id"] == "readme_media" and c["ok"] for c in cases)
         and any(c["id"] == "browser_product_page" and c["ok"] for c in cases)
+        and any(c["id"] == "browser_pricing_page" and c["ok"] for c in cases)
         and rich_ok
     )
     if blocked:
@@ -273,6 +306,7 @@ def _build_receipt(
         "prover": (
             "scripts/complete-e2e/check_readme_media.py + "
             "scripts/complete-e2e/browser_product_prove.py + "
+            "scripts/complete-e2e/browser_pricing_prove.py + "
             "scripts/complete-e2e/execute-consumer.py"
         ),
         "behavior": {
@@ -382,6 +416,18 @@ def _receipt_mode(argv: list[str]) -> int:
         if not str(browser["stderr"]).endswith("\n"):
             sys.stderr.write("\n")
 
+    # Fail-closed browser pricing DOM prove (sibling; not urllib product_pricing_site_bodies).
+    browser_pricing = _run_script(HERE / "browser_pricing_prove.py", [], env)
+    browser_pricing_receipt = _parse_execute_receipt(browser_pricing.get("stdout") or "")
+    print(
+        f"  {'PASS' if browser_pricing['ok'] else 'FAIL'}  browser_pricing_page: {browser_pricing['detail'][:120]}",
+        file=sys.stderr,
+    )
+    if browser_pricing.get("stderr"):
+        sys.stderr.write(browser_pricing["stderr"])
+        if not str(browser_pricing["stderr"]).endswith("\n"):
+            sys.stderr.write("\n")
+
     # Require live execute path (runs consumer; emits domain cases).
     execute = _run_script(HERE / "execute-consumer.py", [], env)
     execute_receipt = _parse_execute_receipt(execute.get("stdout") or "")
@@ -401,6 +447,8 @@ def _receipt_mode(argv: list[str]) -> int:
         execute_receipt=execute_receipt,
         browser=browser,
         browser_receipt=browser_receipt,
+        browser_pricing=browser_pricing,
+        browser_pricing_receipt=browser_pricing_receipt,
         skipped_npm=skipped_npm,
     )
     print("----------------------------------------", file=sys.stderr)
@@ -418,7 +466,7 @@ def main() -> int:
     a = set(argv)
     if a & {"-h", "--help"}:
         print(
-            "power-claude-prove: wraps execute-consumer + readme_media + browser_product_prove live proofs; "
+            "power-claude-prove: wraps execute-consumer + readme_media + browser_product_prove + browser_pricing_prove live proofs; "
             "use --receipt for fail-closed JSON receipt (stdout + .receipts/)"
         )
         return 0

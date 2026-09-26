@@ -17,6 +17,7 @@ CANDIDATES = (
     ("cli:clean-room-replay", "scripts/complete-e2e/clean-room-replay.py"),
     ("cli:check-adapter-paths", "scripts/complete-e2e/check-adapter-paths.py"),
     ("cli:browser-product-prove", "scripts/complete-e2e/browser_product_prove.py"),
+    ("cli:browser-pricing-prove", "scripts/complete-e2e/browser_pricing_prove.py"),
 )
 
 
