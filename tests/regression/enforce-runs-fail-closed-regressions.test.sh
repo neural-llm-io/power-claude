@@ -21,6 +21,11 @@ required = [
     "tests/regression/complete-e2e-prove-receipt.test.sh",
     "tests/regression/complete-e2e-help-documents-emergency-markers.test.sh",
     "tests/regression/complete-e2e-clean-room-replay.test.sh",
+    # MISSING_PROVER adapter-paths + list-surfaces no-attest + HTTPError≠env-block
+    # already live in Layer 3b; lock against silent unhook (same theater class as browsers).
+    "tests/regression/complete-e2e-adapter-paths.test.sh",
+    "tests/regression/complete-e2e-list-surfaces-no-attest.test.sh",
+    "tests/regression/complete-e2e-httperror-not-env-block.test.sh",
     # Landed browser DOM proves (#101/#103/#104) must stay in Layer 3b live runs —
     # presence-only / silent unhook is theater.
     # tidy leftover + release-ready post-prove purge must stay live (theater-kill).
