@@ -6,7 +6,7 @@ if the receipt is missing, stale (mtime before replay start), or
 behavior_proven is not true. Also requires ok=true, live env, and the richer
 domain behavior.cases (packed_cli_help, packed_cli_help_cluster, packed_dual_bin_version, packed_bin_payload, packed_media_walkthrough, packed_pkg_meta, packed_engine_enc, packed_media_marketplace_assets, packed_icon_extension_js, packed_files_contract, packed_uninstall_hook, packed_brand_assets, packed_dual_bin_paths, packed_cli_emergency_on_help, packed_cli_halt_emergency_off_help, packed_artifact_sha256, packed_registry_integrity, packed_prices_contract, packed_prices_ladder_cache, packed_prices_pro_yearly, packed_feature_matrix_stamps, packed_jq_platform_sha, registry_pack_produced_tarball, registry_dist_extras, registry_dist_file_count,
 registry_metadata, registry_tarball_meta, registry_listing_meta, marketplace_api, marketplace_api_listing_meta, marketplace_api_short_description, marketplace_vsix_download, marketplace_asset_heads, marketplace_listing_links,
-open_vsx_vsix_download, open_vsx_asset_heads, open_vsx_icon_integrity, open_vsx_download_count, open_vsx_api_namespace_name, open_vsx_listing_meta, product_site_links, pricing_page_links, product_pricing_site_bodies, package_json_version, packed_changelog_present, browser_product_page, browser_pricing_page).
+open_vsx_vsix_download, open_vsx_asset_heads, open_vsx_icon_integrity, open_vsx_download_count, open_vsx_api_namespace_name, open_vsx_listing_meta, product_site_links, pricing_page_links, product_pricing_site_bodies, package_json_version, packed_changelog_present, browser_product_page, browser_pricing_page, browser_openvsx_page).
 
 This closes the MISSING_PROVER gap where a stale/planted receipt could be
 trusted without a fresh prove. Inventory/list paths must never substitute.
@@ -105,10 +105,10 @@ def _validate_receipt(receipt: dict[str, Any]) -> str | None:
     if receipt.get("environment_status") != "live":
         return f"environment_status!='live' ({receipt.get('environment_status')!r})"
     cases = (receipt.get("behavior") or {}).get("cases")
-    if not isinstance(cases, list) or len(cases) < 49:
+    if not isinstance(cases, list) or len(cases) < 50:
         return f"behavior.cases too short: {cases!r}"
     by_id = {c.get("id"): c for c in cases if isinstance(c, dict)}
-    for need in ("readme_media", "consumer_complete_e2e", "browser_product_page", "browser_pricing_page", *RICH_CASE_IDS):
+    for need in ("readme_media", "consumer_complete_e2e", "browser_product_page", "browser_pricing_page", "browser_openvsx_page", *RICH_CASE_IDS):
         c = by_id.get(need)
         if not c:
             return f"missing case {need}"

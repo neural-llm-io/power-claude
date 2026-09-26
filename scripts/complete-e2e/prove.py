@@ -5,7 +5,7 @@
 a fail-closed receipt. Richer behavior.cases ids (packed_cli_help,
 packed_dual_bin_version, packed_artifact_sha256, packed_registry_integrity, packed_prices_contract, packed_feature_matrix_stamps, packed_jq_platform_sha, packed_cli_help_cluster, packed_bin_payload, packed_media_walkthrough, packed_pkg_meta, packed_engine_enc, packed_media_marketplace_assets, packed_icon_extension_js, packed_files_contract, packed_uninstall_hook, packed_brand_assets, packed_dual_bin_paths, packed_cli_emergency_on_help, packed_cli_halt_emergency_off_help, packed_prices_ladder_cache, packed_prices_pro_yearly, registry_pack_produced_tarball, registry_dist_extras, registry_dist_file_count, registry_metadata, registry_tarball_meta, registry_listing_meta, marketplace_api, marketplace_api_listing_meta, marketplace_api_short_description, marketplace_vsix_download,
 marketplace_asset_heads, marketplace_listing_links, open_vsx_vsix_download, open_vsx_asset_heads, open_vsx_icon_integrity, open_vsx_download_count, open_vsx_api_namespace_name, open_vsx_listing_meta,
-product_site_links, pricing_page_links, product_pricing_site_bodies, package_json_version, packed_changelog_present) plus browser_product_page + browser_pricing_page (chrome DOM) are required for behavior_proven when prove succeeds.
+product_site_links, pricing_page_links, product_pricing_site_bodies, package_json_version, packed_changelog_present) plus browser_product_page + browser_pricing_page + browser_openvsx_page (chrome DOM) are required for behavior_proven when prove succeeds.
 """
 from __future__ import annotations
 
@@ -151,6 +151,8 @@ def _build_receipt(
     browser_receipt: dict[str, Any] | None,
     browser_pricing: dict[str, Any],
     browser_pricing_receipt: dict[str, Any] | None,
+    browser_openvsx: dict[str, Any],
+    browser_openvsx_receipt: dict[str, Any] | None,
     skipped_npm: bool,
 ) -> dict[str, Any]:
     def _browser_case(
@@ -187,6 +189,12 @@ def _build_receipt(
         receipt=browser_pricing_receipt,
         missing_label="missing browser_pricing_prove receipt",
     )
+    openvsx_case_ok, openvsx_detail = _browser_case(
+        case_id="browser_openvsx_page",
+        run=browser_openvsx,
+        receipt=browser_openvsx_receipt,
+        missing_label="missing browser_openvsx_prove receipt",
+    )
     cases: list[dict[str, Any]] = [
         {
             "id": "readme_media",
@@ -212,6 +220,11 @@ def _build_receipt(
             "id": "browser_pricing_page",
             "ok": bool(pricing_case_ok),
             "detail": pricing_detail,
+        },
+        {
+            "id": "browser_openvsx_page",
+            "ok": bool(openvsx_case_ok),
+            "detail": openvsx_detail,
         },
     ]
 
@@ -244,6 +257,8 @@ def _build_receipt(
         or (browser_receipt or {}).get("environment_status") == "BLOCKED_ENVIRONMENT"
         or (browser_pricing_receipt or {}).get("blocked_environment")
         or (browser_pricing_receipt or {}).get("environment_status") == "BLOCKED_ENVIRONMENT"
+        or (browser_openvsx_receipt or {}).get("blocked_environment")
+        or (browser_openvsx_receipt or {}).get("environment_status") == "BLOCKED_ENVIRONMENT"
     )
     blocked = browser_blocked or (
         (not all_ok)
@@ -264,6 +279,10 @@ def _build_receipt(
                 browser_pricing.get("stderr") or "",
                 browser_pricing.get("detail") or "",
                 json.dumps(browser_pricing_receipt) if browser_pricing_receipt else "",
+                browser_openvsx.get("stdout") or "",
+                browser_openvsx.get("stderr") or "",
+                browser_openvsx.get("detail") or "",
+                json.dumps(browser_openvsx_receipt) if browser_openvsx_receipt else "",
             ]
         )
     )
@@ -278,6 +297,7 @@ def _build_receipt(
         and any(c["id"] == "readme_media" and c["ok"] for c in cases)
         and any(c["id"] == "browser_product_page" and c["ok"] for c in cases)
         and any(c["id"] == "browser_pricing_page" and c["ok"] for c in cases)
+        and any(c["id"] == "browser_openvsx_page" and c["ok"] for c in cases)
         and rich_ok
     )
     if blocked:
@@ -307,6 +327,7 @@ def _build_receipt(
             "scripts/complete-e2e/check_readme_media.py + "
             "scripts/complete-e2e/browser_product_prove.py + "
             "scripts/complete-e2e/browser_pricing_prove.py + "
+            "scripts/complete-e2e/browser_openvsx_prove.py + "
             "scripts/complete-e2e/execute-consumer.py"
         ),
         "behavior": {
@@ -428,6 +449,18 @@ def _receipt_mode(argv: list[str]) -> int:
         if not str(browser_pricing["stderr"]).endswith("\n"):
             sys.stderr.write("\n")
 
+    # Fail-closed Open VSX listing DOM prove (SPA; not urllib open_vsx_* theater).
+    browser_openvsx = _run_script(HERE / "browser_openvsx_prove.py", [], env)
+    browser_openvsx_receipt = _parse_execute_receipt(browser_openvsx.get("stdout") or "")
+    print(
+        f"  {'PASS' if browser_openvsx['ok'] else 'FAIL'}  browser_openvsx_page: {browser_openvsx['detail'][:120]}",
+        file=sys.stderr,
+    )
+    if browser_openvsx.get("stderr"):
+        sys.stderr.write(browser_openvsx["stderr"])
+        if not str(browser_openvsx["stderr"]).endswith("\n"):
+            sys.stderr.write("\n")
+
     # Require live execute path (runs consumer; emits domain cases).
     execute = _run_script(HERE / "execute-consumer.py", [], env)
     execute_receipt = _parse_execute_receipt(execute.get("stdout") or "")
@@ -449,6 +482,8 @@ def _receipt_mode(argv: list[str]) -> int:
         browser_receipt=browser_receipt,
         browser_pricing=browser_pricing,
         browser_pricing_receipt=browser_pricing_receipt,
+        browser_openvsx=browser_openvsx,
+        browser_openvsx_receipt=browser_openvsx_receipt,
         skipped_npm=skipped_npm,
     )
     print("----------------------------------------", file=sys.stderr)
@@ -466,7 +501,7 @@ def main() -> int:
     a = set(argv)
     if a & {"-h", "--help"}:
         print(
-            "power-claude-prove: wraps execute-consumer + readme_media + browser_product_prove + browser_pricing_prove live proofs; "
+            "power-claude-prove: wraps execute-consumer + readme_media + browser_product_prove + browser_pricing_prove + browser_openvsx_prove live proofs; "
             "use --receipt for fail-closed JSON receipt (stdout + .receipts/)"
         )
         return 0
