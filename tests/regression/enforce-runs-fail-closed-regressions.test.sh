@@ -20,6 +20,11 @@ required = [
     "tests/regression/complete-e2e-execute-receipt.test.sh",
     "tests/regression/complete-e2e-prove-receipt.test.sh",
     "tests/regression/complete-e2e-clean-room-replay.test.sh",
+    # Landed browser DOM proves (#101/#103/#104) must stay in Layer 3b live runs —
+    # presence-only / silent unhook is theater.
+    "tests/regression/complete-e2e-browser-product-prove.test.sh",
+    "tests/regression/complete-e2e-browser-pricing-prove.test.sh",
+    "tests/regression/complete-e2e-browser-openvsx-prove.test.sh",
 ]
 
 has_subprocess_run = False
