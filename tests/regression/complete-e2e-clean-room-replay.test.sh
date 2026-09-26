@@ -98,6 +98,7 @@ for rid in (
     "browser_openvsx_page",
     "packed_cli_help",
     "packed_cli_help_cluster",
+    "packed_cli_help_documents",
     "packed_dual_bin_version",
     "packed_dual_bin_paths",
     "packed_cli_emergency_on_help",
