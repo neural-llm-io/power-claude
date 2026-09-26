@@ -35,7 +35,14 @@ for raw in (r.stdout or b"").split(b"\0"):
         continue
     rel = raw.decode("utf-8", errors="replace")
     parts = Path(rel).parts
-    if ".receipts" in parts or Path(rel).name in ("prove-receipt.json", "execute-receipt.json"):
+    known = (
+        "prove-receipt.json",
+        "execute-receipt.json",
+        "browser-product-prove-receipt.json",
+        "browser-pricing-prove-receipt.json",
+        "browser-openvsx-prove-receipt.json",
+    )
+    if ".receipts" in parts or Path(rel).name in known:
         tracked.append(rel)
 assert not tracked, f"git already tracks receipts: {tracked}"
 print("ok no tracked receipts")
@@ -104,4 +111,48 @@ fi
 rm -f "$ROOT/tmp-tidy-fix.out"
 rm -rf "$RECEIPT_DIR"
 
-echo "PASS tidy-leftover-receipts: clean --full PASS; planted leftover FAIL; --full purges"
+# Browser receipt filename dropped OUTSIDE .receipts/ must also fail-closed
+# (#101/#103/#104 browser-*-prove-receipt.json — tidy used to ignore these).
+OUTSIDE="$ROOT/browser-openvsx-prove-receipt.json"
+rm -f "$OUTSIDE"
+cat > "$OUTSIDE" <<'JSON'
+{"schema":"planted-leftover-browser","ok":true,"behavior_proven":true,"prover":"PLANTED_BROWSER_OUTSIDE"}
+JSON
+
+set +e
+python3 "$TIDY_PY" >"$ROOT/tmp-tidy-browser-out.out" 2>&1
+rc_browser=$?
+set -e
+if [[ "$rc_browser" -eq 0 ]] || ! grep -q 'TIDY: FAIL' "$ROOT/tmp-tidy-browser-out.out"; then
+  echo "FAIL tidy-leftover: outside browser receipt expected FAIL rc!=0" >&2
+  cat "$ROOT/tmp-tidy-browser-out.out" >&2
+  rm -f "$OUTSIDE" "$ROOT/tmp-tidy-browser-out.out"
+  exit 1
+fi
+if ! grep -q 'leftover receipts' "$ROOT/tmp-tidy-browser-out.out"; then
+  echo "FAIL tidy-leftover: expected leftover receipts FAIL line for browser outside drop" >&2
+  cat "$ROOT/tmp-tidy-browser-out.out" >&2
+  rm -f "$OUTSIDE" "$ROOT/tmp-tidy-browser-out.out"
+  exit 1
+fi
+[[ -f "$OUTSIDE" ]] || { echo "FAIL tidy-leftover: check mode deleted outside browser receipt" >&2; exit 1; }
+rm -f "$ROOT/tmp-tidy-browser-out.out"
+
+set +e
+python3 "$TIDY_PY" --full >"$ROOT/tmp-tidy-browser-fix.out" 2>&1
+rc_browser_fix=$?
+set -e
+if [[ "$rc_browser_fix" -ne 0 ]] || ! grep -q 'TIDY: PASS' "$ROOT/tmp-tidy-browser-fix.out"; then
+  echo "FAIL tidy-leftover: --full after outside browser plant expected PASS" >&2
+  cat "$ROOT/tmp-tidy-browser-fix.out" >&2
+  rm -f "$OUTSIDE" "$ROOT/tmp-tidy-browser-fix.out"
+  exit 1
+fi
+if [[ -f "$OUTSIDE" ]]; then
+  echo "FAIL tidy-leftover: --full left outside browser receipt on disk" >&2
+  rm -f "$OUTSIDE" "$ROOT/tmp-tidy-browser-fix.out"
+  exit 1
+fi
+rm -f "$ROOT/tmp-tidy-browser-fix.out"
+
+echo "PASS tidy-leftover-receipts: clean --full PASS; planted leftover FAIL; --full purges; outside browser receipt FAIL+purge"

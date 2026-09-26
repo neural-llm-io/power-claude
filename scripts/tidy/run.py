@@ -14,6 +14,11 @@ RECEIPT_DIR_NAMES = (".receipts",)
 KNOWN_RECEIPT_NAMES = (
     "prove-receipt.json",
     "execute-receipt.json",
+    # Browser DOM prove receipts (#101/#103/#104) — same leftover class as
+    # prove/execute; catch drops outside .receipts/ and git-tracked basenames.
+    "browser-product-prove-receipt.json",
+    "browser-pricing-prove-receipt.json",
+    "browser-openvsx-prove-receipt.json",
 )
 
 
