@@ -22,9 +22,12 @@ required = [
     "tests/regression/complete-e2e-clean-room-replay.test.sh",
     # Landed browser DOM proves (#101/#103/#104) must stay in Layer 3b live runs —
     # presence-only / silent unhook is theater.
+    # tidy leftover + release-ready post-prove purge must stay live (theater-kill).
     "tests/regression/complete-e2e-browser-product-prove.test.sh",
     "tests/regression/complete-e2e-browser-pricing-prove.test.sh",
     "tests/regression/complete-e2e-browser-openvsx-prove.test.sh",
+    "tests/regression/tidy-leftover-receipts.test.sh",
+    "tests/regression/release-ready-post-prove-receipt-purge.test.sh",
 ]
 
 has_subprocess_run = False
